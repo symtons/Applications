@@ -804,6 +804,422 @@
         box-shadow: none;
         border: 1px solid #000;
     }
+
+    /* ===============================================
+   FIXED TAB CONTENT CSS - ADD TO TPA-COMMON.CSS
+   This fixes the checkbox visibility issue on inactive tabs
+   =============================================== */
+
+/* Tab Content - Modified to allow checkboxes to work on all tabs */
+.tab-content {
+    padding: 2.5rem;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    z-index: -1 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: white;
+    color: #1e293b;
+    transition: none !important;
+}
+
+.tab-content.active {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ensure ALL form controls remain functional even when parent tab is not active */
+.tab-content input[type="checkbox"],
+.tab-content input[type="radio"],
+.tab-content select,
+.tab-content textarea,
+.tab-content input[type="text"],
+.tab-content input[type="email"],
+.tab-content input[type="tel"],
+.tab-content input[type="date"] {
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: inline-block !important;
+}
+
+/* Force visibility for checkbox and radio button containers */
+.tab-content .checkbox-group,
+.tab-content .radio-group,
+.tab-content .form-table {
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Specific fixes for ASP.NET generated spans */
+.tab-content .checkbox-group span,
+.tab-content .radio-group span,
+.tab-content .form-table span {
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Enhanced checkbox styling with forced visibility */
+.tab-content input[type="checkbox"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 8px 0 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    vertical-align: middle !important;
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    background: white !important;
+    border: 2px solid #ccc !important;
+    border-radius: 4px !important;
+    outline: none !important;
+}
+
+.tab-content input[type="checkbox"]:checked {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+    accent-color: #1976d2 !important;
+}
+
+.tab-content input[type="checkbox"]:hover {
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2) !important;
+}
+
+.tab-content input[type="checkbox"]:focus {
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.3) !important;
+}
+
+/* Enhanced radio button styling with forced visibility */
+.tab-content input[type="radio"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 8px 0 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    vertical-align: middle !important;
+    appearance: auto !important;
+    -webkit-appearance: radio !important;
+    -moz-appearance: radio !important;
+    background: white !important;
+    border: 2px solid #ccc !important;
+    border-radius: 50% !important;
+    outline: none !important;
+}
+
+.tab-content input[type="radio"]:checked {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+    accent-color: #1976d2 !important;
+}
+
+.tab-content input[type="radio"]:hover {
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2) !important;
+}
+
+.tab-content input[type="radio"]:focus {
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.3) !important;
+}
+
+/* Label styling with forced visibility */
+.tab-content .checkbox-group label,
+.tab-content .radio-group label,
+.tab-content .form-table label,
+.tab-content label[for] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    margin: 0 20px 0 0 !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    vertical-align: middle !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+    position: relative !important;
+}
+
+/* Container styling */
+.tab-content .checkbox-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    align-items: center !important;
+    margin-top: 10px !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.tab-content .radio-group {
+    display: flex !important;
+    gap: 20px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Days grid specific styling */
+.tab-content .checkbox-group.days-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.tab-content .checkbox-group.days-grid span {
+    justify-content: flex-start !important;
+    padding: 8px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-content .checkbox-group.days-grid span:hover {
+    background: #e3f2fd !important;
+    border-color: #1976d2 !important;
+}
+
+.tab-content .checkbox-group.days-grid span input[type="checkbox"]:checked + label {
+    color: #1976d2 !important;
+    font-weight: 600 !important;
+}
+
+/* Form table styling */
+.tab-content .form-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.tab-content .form-table th,
+.tab-content .form-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.tab-content .form-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-content .form-table tr:last-child td {
+    border-bottom: none;
+}
+
+.tab-content .form-table input[type="checkbox"],
+.tab-content .form-table input[type="radio"] {
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 6px 0 0 !important;
+    vertical-align: middle !important;
+}
+
+/* Education table year checkboxes */
+.tab-content .education-table .year-checkboxes {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-content .education-table .year-checkboxes label {
+    margin: 0 !important;
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    cursor: pointer !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-content .education-table .year-checkboxes input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+    margin: 0 4px 0 0 !important;
+}
+
+/* Final acknowledgment styling */
+.tab-content .final-acknowledgment-container {
+    display: flex !important;
+    gap: 1rem !important;
+    align-items: flex-start !important;
+    padding: 1.5rem !important;
+    background: #fef7cd !important;
+    border: 2px solid #fbbf24 !important;
+    border-radius: 8px !important;
+    margin-bottom: 1rem !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-content .final-acknowledgment-container input[type="checkbox"] {
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.tab-content .checkbox-label {
+    color: #374151 !important;
+    line-height: 1.6 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Override any JavaScript or ASP.NET hiding */
+.tab-content[style*="display: none"] input[type="checkbox"],
+.tab-content[style*="display: none"] input[type="radio"],
+.tab-content[style*="visibility: hidden"] input[type="checkbox"],
+.tab-content[style*="visibility: hidden"] input[type="radio"] {
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: inline-block !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tab-content .checkbox-group {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .tab-content .radio-group {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .tab-content .checkbox-group.days-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .tab-content input[type="checkbox"],
+    .tab-content input[type="radio"] {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}
+
+/* Print support */
+@media print {
+    .tab-content {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+        page-break-after: always;
+        padding: 0;
+        box-shadow: none;
+    }
+    
+    .tab-content:last-child {
+        page-break-after: auto;
+    }
+    
+    .tab-content input[type="checkbox"],
+    .tab-content input[type="radio"] {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .tab-content input[type="checkbox"]:checked::after {
+        content: "✓" !important;
+        font-size: 12px !important;
+        color: black !important;
+        position: absolute !important;
+        left: 2px !important;
+        top: -2px !important;
+    }
+}
 }
 </style>
     <!-- Page Header -->
@@ -2063,14 +2479,303 @@
             $('#<%= txtApplicationDate.ClientID %>').val(today);
             $('#<%= txtSignatureDate.ClientID %>').val(today);
         });
+        // Enhanced Checkbox and Radio Button Functionality
+        // This script ensures all checkboxes work properly on all tabs
 
+        (function () {
+            'use strict';
+
+            // Initialize when DOM is ready
+            document.addEventListener('DOMContentLoaded', function () {
+                initializeCheckboxFunctionality();
+                setupTabChangeHandlers();
+                setupFormStatePreservation();
+            });
+
+            // Reinitialize after ASP.NET postbacks
+            if (typeof Sys !== 'undefined') {
+                Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
+                    initializeCheckboxFunctionality();
+                    setupTabChangeHandlers();
+                    setupFormStatePreservation();
+                });
+            }
+
+            function initializeCheckboxFunctionality() {
+                // Find all checkboxes and radio buttons
+                var allControls = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+
+                allControls.forEach(function (control) {
+                    // Force visibility and functionality
+                    ensureControlVisibility(control);
+
+                    // Add enhanced event handlers
+                    if (!control.hasAttribute('data-enhanced')) {
+                        addControlEventHandlers(control);
+                        control.setAttribute('data-enhanced', 'true');
+                    }
+                });
+
+                // Ensure container elements don't block functionality
+                var containers = document.querySelectorAll('.checkbox-group, .radio-group, .form-table');
+                containers.forEach(function (container) {
+                    ensureContainerFunctionality(container);
+                });
+            }
+
+            function ensureControlVisibility(control) {
+                // Force the control to be visible and functional
+                control.style.setProperty('display', 'inline-block', 'important');
+                control.style.setProperty('visibility', 'visible', 'important');
+                control.style.setProperty('opacity', '1', 'important');
+                control.style.setProperty('pointer-events', 'auto', 'important');
+                control.style.setProperty('position', 'relative', 'important');
+                control.style.setProperty('z-index', '10', 'important');
+
+                // Remove any hiding classes
+                control.classList.remove('hidden', 'invisible', 'd-none');
+
+                // Ensure parent spans (ASP.NET generated) are also visible
+                var parentSpan = control.closest('span');
+                if (parentSpan) {
+                    parentSpan.style.setProperty('display', 'inline-flex', 'important');
+                    parentSpan.style.setProperty('visibility', 'visible', 'important');
+                    parentSpan.style.setProperty('opacity', '1', 'important');
+                    parentSpan.style.setProperty('pointer-events', 'auto', 'important');
+                }
+            }
+
+            function ensureContainerFunctionality(container) {
+                container.style.setProperty('position', 'relative', 'important');
+                container.style.setProperty('visibility', 'visible', 'important');
+                container.style.setProperty('opacity', '1', 'important');
+                container.style.setProperty('pointer-events', 'auto', 'important');
+
+                // Ensure all controls within the container are functional
+                var controls = container.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+                controls.forEach(ensureControlVisibility);
+            }
+
+            function addControlEventHandlers(control) {
+                // Enhanced change handler
+                control.addEventListener('change', function (e) {
+                    handleControlChange(e);
+                    preserveControlState(e.target);
+                });
+
+                // Enhanced click handler
+                control.addEventListener('click', function (e) {
+                    handleControlClick(e);
+                });
+
+                // Focus handler for accessibility
+                control.addEventListener('focus', function (e) {
+                    e.target.style.setProperty('outline', '2px solid #1976d2', 'important');
+                    e.target.style.setProperty('outline-offset', '2px', 'important');
+                });
+
+                control.addEventListener('blur', function (e) {
+                    e.target.style.removeProperty('outline');
+                    e.target.style.removeProperty('outline-offset');
+                });
+            }
+
+            function handleControlChange(e) {
+                var control = e.target;
+
+                // For radio buttons, ensure proper group behavior
+                if (control.type === 'radio' && control.name) {
+                    var radioGroup = document.querySelectorAll('input[type="radio"][name="' + control.name + '"]');
+                    radioGroup.forEach(function (radio) {
+                        if (radio !== control) {
+                            radio.checked = false;
+                            preserveControlState(radio);
+                        }
+                    });
+                }
+
+                // Trigger custom event for tab content updates
+                var customEvent = new CustomEvent('controlChanged', {
+                    detail: {
+                        control: control,
+                        value: control.checked,
+                        type: control.type,
+                        name: control.name || control.id
+                    },
+                    bubbles: true
+                });
+                control.dispatchEvent(customEvent);
+            }
+
+            function handleControlClick(e) {
+                var control = e.target;
+
+                // Ensure the click is processed even if parent containers are hidden
+                e.stopPropagation();
+
+                // Force focus for accessibility
+                control.focus();
+
+                // Log for debugging (remove in production)
+                console.log('Control clicked:', control.id || control.name, 'Checked:', control.checked);
+            }
+
+            function setupTabChangeHandlers() {
+                // Monitor tab changes
+                var tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        setTimeout(function () {
+                            initializeCheckboxFunctionality();
+                            restoreFormStates();
+                        }, 100);
+                    });
+                });
+
+                // Monitor for UpdatePanel updates
+                if (typeof Sys !== 'undefined') {
+                    Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(function () {
+                        preserveAllFormStates();
+                    });
+                }
+            }
+
+            function setupFormStatePreservation() {
+                // Store form states in localStorage for persistence across postbacks
+                if (typeof Storage !== 'undefined') {
+                    restoreFormStates();
+
+                    // Auto-save form states periodically
+                    setInterval(preserveAllFormStates, 2000);
+                }
+            }
+
+            function preserveControlState(control) {
+                if (typeof Storage !== 'undefined' && (control.id || control.name)) {
+                    var key = 'newhire_' + (control.id || control.name);
+                    var state = {
+                        checked: control.checked,
+                        value: control.value,
+                        type: control.type
+                    };
+                    localStorage.setItem(key, JSON.stringify(state));
+                }
+            }
+
+            function preserveAllFormStates() {
+                var allControls = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+                allControls.forEach(preserveControlState);
+            }
+
+            function restoreFormStates() {
+                if (typeof Storage === 'undefined') return;
+
+                var allControls = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+                allControls.forEach(function (control) {
+                    if (control.id || control.name) {
+                        var key = 'newhire_' + (control.id || control.name);
+                        var savedState = localStorage.getItem(key);
+
+                        if (savedState) {
+                            try {
+                                var state = JSON.parse(savedState);
+                                if (state.type === control.type) {
+                                    control.checked = state.checked;
+                                }
+                            } catch (e) {
+                                console.warn('Error restoring state for control:', control.id || control.name);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Force visibility check every 500ms to catch any dynamic hiding
+            setInterval(function () {
+                var hiddenControls = document.querySelectorAll('input[type="checkbox"]:not([style*="visibility: visible"]), input[type="radio"]:not([style*="visibility: visible"])');
+                hiddenControls.forEach(ensureControlVisibility);
+            }, 500);
+
+            // Override any CSS or JavaScript that might hide controls
+            function forceControlVisibility() {
+                var style = document.createElement('style');
+                style.textContent = `
+            input[type="checkbox"], input[type="radio"] {
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                position: relative !important;
+                z-index: 10 !important;
+            }
+            
+            .checkbox-group, .radio-group, .form-table {
+                position: relative !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            .checkbox-group span, .radio-group span, .form-table span {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+        `;
+                document.head.appendChild(style);
+            }
+
+            // Apply force visibility immediately
+            forceControlVisibility();
+
+            // Public API for manual control management
+            window.NewHireFormControls = {
+                initializeAll: initializeCheckboxFunctionality,
+                preserveStates: preserveAllFormStates,
+                restoreStates: restoreFormStates,
+                ensureVisibility: function (selector) {
+                    var elements = document.querySelectorAll(selector || 'input[type="checkbox"], input[type="radio"]');
+                    elements.forEach(ensureControlVisibility);
+                }
+            };
+
+            // Debug helper (remove in production)
+            window.debugNewHireForm = function () {
+                var allControls = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+                console.log('Total controls found:', allControls.length);
+
+                allControls.forEach(function (control, index) {
+                    var isVisible = window.getComputedStyle(control).visibility === 'visible';
+                    var isDisplayed = window.getComputedStyle(control).display !== 'none';
+                    var parentTabContent = control.closest('.tab-content');
+                    var tabIsActive = parentTabContent ? parentTabContent.classList.contains('active') : 'N/A';
+
+                    console.log(`Control ${index + 1}:`, {
+                        id: control.id || 'no-id',
+                        name: control.name || 'no-name',
+                        type: control.type,
+                        checked: control.checked,
+                        visible: isVisible,
+                        displayed: isDisplayed,
+                        tabActive: tabIsActive,
+                        element: control
+                    });
+                });
+            };
+
+        })();
         // Save draft functionality
         function saveDraft() {
             __doPostBack('<%= btnSaveDraft.UniqueID %>', '');
         }
 
+
+
         // Auto-save every 5 minutes
         setInterval(saveDraft, 300000);
+
+
     </script>
 </asp:Content>
 
