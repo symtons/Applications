@@ -986,6 +986,179 @@ namespace Applications
             lblMessage.CssClass = "message-text";
         }
 
+        // =====================================================================
+        // ONLY THE SECTIONS TO CHANGE IN NewPaperWork.aspx.cs
+        // Replace these specific methods with the corrected versions
+        // =====================================================================
+
+        // 1. REPLACE THE LoadEducationInformation METHOD (around line 496-520)
+        private void LoadEducationInformation(SqlDataReader reader)
+        {
+            // School names
+            SetTextBoxValue(txtElementarySchool, reader["ElementarySchool"]);
+            SetTextBoxValue(txtHighSchool, reader["HighSchool"]);
+            SetTextBoxValue(txtUndergraduateSchool, reader["UndergraduateSchool"]);
+            SetTextBoxValue(txtGraduateSchool, reader["GraduateSchool"]);
+
+            // Elementary year checkboxes
+            SetCheckBoxValue(chkElem1, reader["Elem1"]);
+            SetCheckBoxValue(chkElem2, reader["Elem2"]);
+            SetCheckBoxValue(chkElem3, reader["Elem3"]);
+            SetCheckBoxValue(chkElem4, reader["Elem4"]);
+            SetCheckBoxValue(chkElem5, reader["Elem5"]);
+
+            // High school year checkboxes
+            SetCheckBoxValue(chkHS9, reader["HS9"]);
+            SetCheckBoxValue(chkHS10, reader["HS10"]);
+            SetCheckBoxValue(chkHS11, reader["HS11"]);
+            SetCheckBoxValue(chkHS12, reader["HS12"]);
+
+            // Undergraduate year checkboxes
+            SetCheckBoxValue(chkUG1, reader["UG1"]);
+            SetCheckBoxValue(chkUG2, reader["UG2"]);
+            SetCheckBoxValue(chkUG3, reader["UG3"]);
+            SetCheckBoxValue(chkUG4, reader["UG4"]);
+            SetCheckBoxValue(chkUG5, reader["UG5"]);
+
+            // Graduate year checkboxes
+            SetCheckBoxValue(chkGrad1, reader["Grad1"]);
+            SetCheckBoxValue(chkGrad2, reader["Grad2"]);
+            SetCheckBoxValue(chkGrad3, reader["Grad3"]);
+            SetCheckBoxValue(chkGrad4, reader["Grad4"]);
+            SetCheckBoxValue(chkGrad5, reader["Grad5"]);
+
+            // Diploma/Degree radio buttons
+            SetRadioButtonValue(rbElemDiplomaYes, rbElemDiplomaNo, reader["ElemDiploma"]);
+            SetRadioButtonValue(rbHSDiplomaYes, rbHSDiplomaNo, reader["HSDiploma"]);
+            SetRadioButtonValue(rbUGDegreeYes, rbUGDegreeNo, reader["UGDegree"]);
+            SetRadioButtonValue(rbGradDegreeYes, rbGradDegreeNo, reader["GradDegree"]);
+
+            // Skills and special knowledge
+            SetTextBoxValue(txtUGSkills, reader["UGSkills"]);
+            SetTextBoxValue(txtGradSkills, reader["GradSkills"]);
+            SetTextBoxValue(txtSpecialKnowledge, reader["SpecialKnowledge"]);
+
+            // Licenses
+            SetTextBoxValue(txtLicenseType1, reader["LicenseType1"]);
+            SetTextBoxValue(txtLicenseState1, reader["LicenseState1"]);
+            SetTextBoxValue(txtLicenseNumber1, reader["LicenseNumber1"]);
+            SetTextBoxValue(txtLicenseExpiration1, reader["LicenseExpiration1"]);
+
+            SetTextBoxValue(txtLicenseType2, reader["LicenseType2"]);
+            SetTextBoxValue(txtLicenseState2, reader["LicenseState2"]);
+            SetTextBoxValue(txtLicenseNumber2, reader["LicenseNumber2"]);
+            SetTextBoxValue(txtLicenseExpiration2, reader["LicenseExpiration2"]);
+        }
+
+        // 2. REPLACE THE SaveEducationInformation METHOD (around line 808-840)
+        private void SaveEducationInformation(SqlConnection connection, SqlTransaction transaction, int applicationId)
+        {
+            string query = @"
+        UPDATE JobApplications 
+        SET ElementarySchool = @ElementarySchool,
+            HighSchool = @HighSchool,
+            UndergraduateSchool = @UndergraduateSchool,
+            GraduateSchool = @GraduateSchool,
+            Elem1 = @Elem1,
+            Elem2 = @Elem2,
+            Elem3 = @Elem3,
+            Elem4 = @Elem4,
+            Elem5 = @Elem5,
+            HS9 = @HS9,
+            HS10 = @HS10,
+            HS11 = @HS11,
+            HS12 = @HS12,
+            UG1 = @UG1,
+            UG2 = @UG2,
+            UG3 = @UG3,
+            UG4 = @UG4,
+            UG5 = @UG5,
+            Grad1 = @Grad1,
+            Grad2 = @Grad2,
+            Grad3 = @Grad3,
+            Grad4 = @Grad4,
+            Grad5 = @Grad5,
+            ElemDiploma = @ElemDiploma,
+            HSDiploma = @HSDiploma,
+            UGDegree = @UGDegree,
+            GradDegree = @GradDegree,
+            UGSkills = @UGSkills,
+            GradSkills = @GradSkills,
+            SpecialKnowledge = @SpecialKnowledge,
+            LicenseType1 = @LicenseType1,
+            LicenseState1 = @LicenseState1,
+            LicenseNumber1 = @LicenseNumber1,
+            LicenseExpiration1 = @LicenseExpiration1,
+            LicenseType2 = @LicenseType2,
+            LicenseState2 = @LicenseState2,
+            LicenseNumber2 = @LicenseNumber2,
+            LicenseExpiration2 = @LicenseExpiration2
+        WHERE ApplicationId = @ApplicationId";
+
+            using (SqlCommand command = new SqlCommand(query, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@ApplicationId", applicationId);
+                command.Parameters.AddWithValue("@ElementarySchool", GetTextBoxValue(txtElementarySchool));
+                command.Parameters.AddWithValue("@HighSchool", GetTextBoxValue(txtHighSchool));
+                command.Parameters.AddWithValue("@UndergraduateSchool", GetTextBoxValue(txtUndergraduateSchool));
+                command.Parameters.AddWithValue("@GraduateSchool", GetTextBoxValue(txtGraduateSchool));
+
+                // Elementary year checkboxes
+                command.Parameters.AddWithValue("@Elem1", GetCheckBoxValue(chkElem1));
+                command.Parameters.AddWithValue("@Elem2", GetCheckBoxValue(chkElem2));
+                command.Parameters.AddWithValue("@Elem3", GetCheckBoxValue(chkElem3));
+                command.Parameters.AddWithValue("@Elem4", GetCheckBoxValue(chkElem4));
+                command.Parameters.AddWithValue("@Elem5", GetCheckBoxValue(chkElem5));
+
+                // High school year checkboxes
+                command.Parameters.AddWithValue("@HS9", GetCheckBoxValue(chkHS9));
+                command.Parameters.AddWithValue("@HS10", GetCheckBoxValue(chkHS10));
+                command.Parameters.AddWithValue("@HS11", GetCheckBoxValue(chkHS11));
+                command.Parameters.AddWithValue("@HS12", GetCheckBoxValue(chkHS12));
+
+                // Undergraduate year checkboxes
+                command.Parameters.AddWithValue("@UG1", GetCheckBoxValue(chkUG1));
+                command.Parameters.AddWithValue("@UG2", GetCheckBoxValue(chkUG2));
+                command.Parameters.AddWithValue("@UG3", GetCheckBoxValue(chkUG3));
+                command.Parameters.AddWithValue("@UG4", GetCheckBoxValue(chkUG4));
+                command.Parameters.AddWithValue("@UG5", GetCheckBoxValue(chkUG5));
+
+                // Graduate year checkboxes
+                command.Parameters.AddWithValue("@Grad1", GetCheckBoxValue(chkGrad1));
+                command.Parameters.AddWithValue("@Grad2", GetCheckBoxValue(chkGrad2));
+                command.Parameters.AddWithValue("@Grad3", GetCheckBoxValue(chkGrad3));
+                command.Parameters.AddWithValue("@Grad4", GetCheckBoxValue(chkGrad4));
+                command.Parameters.AddWithValue("@Grad5", GetCheckBoxValue(chkGrad5));
+
+                // Diploma/Degree radio buttons
+                command.Parameters.AddWithValue("@ElemDiploma", GetRadioButtonValue(rbElemDiplomaYes));
+                command.Parameters.AddWithValue("@HSDiploma", GetRadioButtonValue(rbHSDiplomaYes));
+                command.Parameters.AddWithValue("@UGDegree", GetRadioButtonValue(rbUGDegreeYes));
+                command.Parameters.AddWithValue("@GradDegree", GetRadioButtonValue(rbGradDegreeYes));
+
+                command.Parameters.AddWithValue("@UGSkills", GetTextBoxValue(txtUGSkills));
+                command.Parameters.AddWithValue("@GradSkills", GetTextBoxValue(txtGradSkills));
+                command.Parameters.AddWithValue("@SpecialKnowledge", GetTextBoxValue(txtSpecialKnowledge));
+                command.Parameters.AddWithValue("@LicenseType1", GetTextBoxValue(txtLicenseType1));
+                command.Parameters.AddWithValue("@LicenseState1", GetTextBoxValue(txtLicenseState1));
+                command.Parameters.AddWithValue("@LicenseNumber1", GetTextBoxValue(txtLicenseNumber1));
+                command.Parameters.AddWithValue("@LicenseExpiration1", GetTextBoxValue(txtLicenseExpiration1));
+                command.Parameters.AddWithValue("@LicenseType2", GetTextBoxValue(txtLicenseType2));
+                command.Parameters.AddWithValue("@LicenseState2", GetTextBoxValue(txtLicenseState2));
+                command.Parameters.AddWithValue("@LicenseNumber2", GetTextBoxValue(txtLicenseNumber2));
+                command.Parameters.AddWithValue("@LicenseExpiration2", GetTextBoxValue(txtLicenseExpiration2));
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        // 3. ADD THIS MISSING METHOD (add it in the Validation Events region around line 248)
+        protected void cvFinalAcknowledgment_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            // Validate that the final acknowledgment checkbox is checked
+            args.IsValid = chkFinalAcknowledgment != null && chkFinalAcknowledgment.Checked;
+        }
+
         #endregion
     }
 }
