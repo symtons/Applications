@@ -10,7 +10,10 @@
 
 
     <style>
-   
+/* ===================================
+   NEW HIRE PAPERWORK ENHANCED STYLES
+   Add these styles to tpa-common.css
+   =================================== */
 
 /* Application Header */
 .application-header {
@@ -238,22 +241,182 @@
     box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
 
+.form-input:disabled {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
 .form-input::placeholder {
     color: #9ca3af;
 }
 
-/* Checkbox and Radio Groups */
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
+.form-help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
 }
 
-.checkbox-group input[type="checkbox"],
-.checkbox-group input[type="radio"] {
-    margin-right: 0.5rem;
+/* ===============================================
+   FORCE VISIBLE AND CLICKABLE RADIO BUTTONS & CHECKBOXES
+   =============================================== */
+
+/* Reset any conflicting styles first */
+.checkbox-group *,
+.radio-group * {
+    pointer-events: auto !important;
+    position: relative !important;
 }
+
+/* FORCE RADIO BUTTONS TO BE VISIBLE AND CLICKABLE */
+.checkbox-group input[type="radio"],
+.radio-group input[type="radio"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 8px 0 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    vertical-align: middle !important;
+    appearance: auto !important;
+    -webkit-appearance: radio !important;
+    -moz-appearance: radio !important;
+    background: white !important;
+    border: 2px solid #ccc !important;
+    border-radius: 50% !important;
+}
+
+.checkbox-group input[type="radio"]:checked,
+.radio-group input[type="radio"]:checked {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+}
+
+/* FORCE CHECKBOXES TO BE VISIBLE AND CLICKABLE */
+.checkbox-group input[type="checkbox"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 8px 0 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    vertical-align: middle !important;
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    background: white !important;
+    border: 2px solid #ccc !important;
+    border-radius: 3px !important;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    background: #1976d2 !important;
+    border-color: #1976d2 !important;
+}
+
+/* FORCE LABELS TO BE VISIBLE AND CLICKABLE */
+.checkbox-group label,
+.radio-group label {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    margin: 0 20px 0 0 !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    vertical-align: middle !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+}
+
+/* CONTAINER STYLING */
+.checkbox-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    align-items: center !important;
+    margin-top: 10px !important;
+    pointer-events: auto !important;
+}
+
+.radio-group {
+    display: flex !important;
+    gap: 20px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+    pointer-events: auto !important;
+}
+
+/* Fix ASP.NET generated span wrappers */
+.checkbox-group span,
+.radio-group span {
+    display: inline-flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ensure the ASP.NET controls work properly */
+.checkbox-group span input[type="radio"],
+.checkbox-group span input[type="checkbox"],
+.radio-group span input[type="radio"],
+.radio-group span input[type="checkbox"] {
+    margin-right: 6px !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+.checkbox-group span label,
+.radio-group span label {
+    margin: 0 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+/* Days grid specific */
+.checkbox-group.days-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+}
+
+.checkbox-group.days-grid span {
+    justify-content: flex-start !important;
+    padding: 8px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.checkbox-group.days-grid span:hover {
+    background: #e3f2fd !important;
+    border-color: #1976d2 !important;
+}
+
+.checkbox-group.days-grid span input[type="checkbox"]:checked + label {
+    color: #1976d2 !important;
+    font-weight: 600 !important;
+}
+
+/* ===============================================
+   END OF CLICKABLE CONTROLS SECTION
+   =============================================== */
 
 /* Form Tables */
 .form-table {
@@ -475,10 +638,14 @@
 
 /* Form Notes */
 .form-note {
-    font-size: 0.85rem;
-    color: #6b7280;
+    color: #666;
+    font-size: 12px;
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
     font-style: italic;
-    margin-top: 0.5rem;
 }
 
 /* Inline Input for Reference Form */
@@ -535,20 +702,39 @@
     
     .nav-buttons .btn {
         width: 100%;
-        min-width: auto;
+    }
+    
+    .application-header {
+        padding: 1.5rem;
+    }
+    
+    .application-title {
+        font-size: 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .employment-grid {
         grid-template-columns: 1fr;
     }
     
-    .form-row {
-        grid-template-columns: 1fr;
+    .final-acknowledgment-container {
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
-    .checkbox-group {
-        flex-direction: column;
-        align-items: flex-start;
+    .checkbox-group,
+    .radio-group {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .checkbox-group.days-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
@@ -572,6 +758,20 @@
     .final-acknowledgment-container {
         flex-direction: column;
         gap: 0.5rem;
+    }
+    
+    .checkbox-group.days-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkbox-group.days-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .form-section {
+        padding: 1rem !important;
     }
 }
 
@@ -605,8 +805,7 @@
         border: 1px solid #000;
     }
 }
-
-    </style>
+</style>
     <!-- Page Header -->
     <div class="onboarding-page-header">
         <div class="header-content">
