@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -13,36 +13,186 @@ namespace Applications
 {
     public partial class NewPaperWork : System.Web.UI.Page
     {
-        private string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-        private int currentEmployeeId;
+        #region Page Events
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
                 InitializePage();
-                LoadExistingApplication();
                 SetActiveTab("Personal");
             }
+
+            // Always ensure checkboxes are functional on every page load
+            EnsureAllControlsFunctional();
         }
+
+        protected override void OnPreRender(EventArgs e)
+        {
+            base.OnPreRender(e);
+
+            // Final check to ensure all controls are functional before rendering
+            EnsureAllControlsFunctional();
+            RegisterClientScripts();
+        }
+
+        #endregion
+
+        #region Initialization
 
         private void InitializePage()
         {
-            // Get current employee ID from session
-            //if (Session["UserId"] != null)
-            //{
-            //    currentEmployeeId = Convert.ToInt32(Session["UserId"]);
-            //}
-            //else
-            //{
-            //    Response.Redirect("~/Login.aspx");
-            //    return;
-            //}
+            try
+            {
+                // Initialize default values
+                hfCurrentTab.Value = "personal";
 
-            // Set initial dates
-            txtApplicationDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
-            txtSignatureDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
+                // Check if editing existing application
+                if (Request.QueryString["ApplicationId"] != null &&
+                    int.TryParse(Request.QueryString["ApplicationId"], out int applicationId))
+                {
+                    hfApplicationId.Value = applicationId.ToString();
+                    LoadApplicationData(applicationId);
+                }
+                else
+                {
+                    // New application - generate application number
+                    GenerateApplicationNumber();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error initializing page: " + ex.Message);
+            }
         }
+
+        private void GenerateApplicationNumber()
+        {
+            string applicationNumber = "APP" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            ViewState["ApplicationNumber"] = applicationNumber;
+        }
+
+        private void EnsureAllControlsFunctional()
+        {
+            // This method ensures ALL checkboxes and radio buttons are functional
+            // regardless of which tab is currently active
+
+            try
+            {
+                // Position tab controls (using actual control names from ASPX)
+                EnsureControlFunctional(chkNashville);
+                EnsureControlFunctional(chkFranklin);
+                EnsureControlFunctional(chkShelbyville);
+                EnsureControlFunctional(chkWaynesboro);
+                EnsureControlFunctional(chkOtherLocation);
+
+                EnsureControlFunctional(chkFirstShift);
+                EnsureControlFunctional(chkSecondShift);
+                EnsureControlFunctional(chkThirdShift);
+                EnsureControlFunctional(chkWeekendsOnly);
+
+                EnsureControlFunctional(chkMonday);
+                EnsureControlFunctional(chkTuesday);
+                EnsureControlFunctional(chkWednesday);
+                EnsureControlFunctional(chkThursday);
+                EnsureControlFunctional(chkFriday);
+                EnsureControlFunctional(chkSaturday);
+                EnsureControlFunctional(chkSunday);
+
+                // Background tab controls
+                EnsureControlFunctional(rbAppliedBeforeYes);
+                EnsureControlFunctional(rbAppliedBeforeNo);
+                EnsureControlFunctional(rbWorkedBeforeYes);
+                EnsureControlFunctional(rbWorkedBeforeNo);
+                EnsureControlFunctional(rbFamilyEmployedYes);
+                EnsureControlFunctional(rbFamilyEmployedNo);
+
+                // Employment type radio buttons
+                EnsureControlFunctional(rbFullTime);
+                EnsureControlFunctional(rbPartTime);
+                EnsureControlFunctional(rbTemporary);
+
+                // Salary type radio buttons
+                EnsureControlFunctional(rbHourly);
+                EnsureControlFunctional(rbYearly);
+
+                // Education checkboxes (using actual control names)
+                EnsureControlFunctional(rbElemDiplomaYes);
+                EnsureControlFunctional(rbElemDiplomaNo);
+                EnsureControlFunctional(rbHSDiplomaYes);
+                EnsureControlFunctional(rbHSDiplomaNo);
+                EnsureControlFunctional(rbUGDegreeYes);
+                EnsureControlFunctional(rbUGDegreeNo);
+                EnsureControlFunctional(rbGradDegreeYes);
+                EnsureControlFunctional(rbGradDegreeNo);
+
+                // Year checkboxes for education
+                EnsureControlFunctional(chkElem1);
+                EnsureControlFunctional(chkElem2);
+                EnsureControlFunctional(chkElem3);
+                EnsureControlFunctional(chkElem4);
+                EnsureControlFunctional(chkElem5);
+                EnsureControlFunctional(chkHS9);
+                EnsureControlFunctional(chkHS10);
+                EnsureControlFunctional(chkHS11);
+                EnsureControlFunctional(chkHS12);
+                EnsureControlFunctional(chkUG1);
+                EnsureControlFunctional(chkUG2);
+                EnsureControlFunctional(chkUG3);
+                EnsureControlFunctional(chkUG4);
+                EnsureControlFunctional(chkGrad1);
+                EnsureControlFunctional(chkGrad2);
+                EnsureControlFunctional(chkGrad3);
+                EnsureControlFunctional(chkGrad4);
+                EnsureControlFunctional(chkGrad5);
+
+                // Criminal history and background checkboxes
+                EnsureControlFunctional(rbConvicted7YearsYes);
+                EnsureControlFunctional(rbConvicted7YearsNo);
+                EnsureControlFunctional(rbChargedInvestigationYes);
+                EnsureControlFunctional(rbChargedInvestigationNo);
+                EnsureControlFunctional(chkDIDDNoAbuse);
+                EnsureControlFunctional(chkDIDDHadAbuse);
+
+                // Authorization controls
+                EnsureControlFunctional(chkFinalAcknowledgment);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't break the page
+                System.Diagnostics.Debug.WriteLine("Error ensuring controls functional: " + ex.Message);
+            }
+        }
+
+        private void EnsureControlFunctional(WebControl control)
+        {
+            if (control != null)
+            {
+                control.Enabled = true;
+                control.Visible = true;
+
+                // Add CSS class to force visibility
+                if (!control.CssClass.Contains("force-visible"))
+                {
+                    control.CssClass += " force-visible";
+                }
+            }
+        }
+
+        private void RegisterClientScripts()
+        {
+            // Register script to ensure checkboxes work after postbacks
+            string script = @"
+                if (window.NewHireFormControls) {
+                    window.NewHireFormControls.initializeAll();
+                    window.NewHireFormControls.restoreStates();
+                }
+            ";
+
+            ScriptManager.RegisterStartupScript(this, GetType(), "EnsureCheckboxes", script, true);
+        }
+
+        #endregion
 
         #region Tab Navigation
 
@@ -90,6 +240,9 @@ namespace Applications
 
         private void SetActiveTab(string tabName)
         {
+            // Save all form data before switching tabs
+            SaveAllTabData();
+
             // Reset all tab buttons
             btnTabPersonal.CssClass = "tab-button";
             btnTabPosition.CssClass = "tab-button";
@@ -163,6 +316,10 @@ namespace Applications
             }
 
             hfCurrentTab.Value = tabName.ToLower();
+
+            // Ensure all controls remain functional after tab change
+            EnsureAllControlsFunctional();
+
             upMain.Update();
         }
 
@@ -256,9 +413,9 @@ namespace Applications
                 SaveApplicationData(true);
                 ShowSuccessMessage("Application submitted successfully! You will be redirected to your dashboard.");
 
-                // Redirect after a short delay
-                ClientScript.RegisterStartupScript(this.GetType(), "redirect",
-                    "setTimeout(function(){ window.location.href = '../Dashboard/EmployeeDashboard.aspx'; }, 3000);", true);
+                // Redirect after a brief delay
+                ScriptManager.RegisterStartupScript(this, GetType(), "redirect",
+                    "setTimeout(function(){ window.location = 'EmployeeDashboard.aspx'; }, 2000);", true);
             }
             catch (Exception ex)
             {
@@ -266,223 +423,242 @@ namespace Applications
             }
         }
 
-        private bool ValidateRequiredFields()
-        {
-            // Check required personal information
-            if (string.IsNullOrWhiteSpace(txtFirstName.Text) ||
-                string.IsNullOrWhiteSpace(txtLastName.Text))
-            {
-                return false;
-            }
-
-            // Check final acknowledgment
-            if (!chkFinalAcknowledgment.Checked)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         #endregion
 
         #region Data Operations
-
-        private void LoadExistingApplication()
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    // Check for existing application
-                    string sql = @"
-                        SELECT TOP 1 * FROM [EmploymentApplications] 
-                        WHERE [EmployeeId] = @EmployeeId 
-                        AND [Status] IN ('Draft', 'Pending')
-                        ORDER BY [ApplicationDate] DESC";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@EmployeeId", currentEmployeeId);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                PopulateFormFromDatabase(reader);
-                                hfApplicationId.Value = reader["Id"].ToString();
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowErrorMessage("Error loading existing application data: " + ex.Message);
-            }
-        }
-
-        private void PopulateFormFromDatabase(SqlDataReader reader)
-        {
-            // Personal Information
-            txtFirstName.Text = GetStringValue(reader, "FirstName");
-            txtMiddleName.Text = GetStringValue(reader, "MiddleName");
-            txtLastName.Text = GetStringValue(reader, "LastName");
-            txtHomeAddress.Text = GetStringValue(reader, "HomeAddress");
-            txtAptNumber.Text = GetStringValue(reader, "AptNumber");
-            txtCity.Text = GetStringValue(reader, "City");
-            txtState.Text = GetStringValue(reader, "State");
-            txtZipCode.Text = GetStringValue(reader, "ZipCode");
-            txtSSN.Text = GetStringValue(reader, "SSN");
-            txtDriversLicense.Text = GetStringValue(reader, "DriversLicense");
-            txtDLState.Text = GetStringValue(reader, "DLState");
-            txtPhoneNumber.Text = GetStringValue(reader, "PhoneNumber");
-            txtCellNumber.Text = GetStringValue(reader, "CellNumber");
-            txtEmergencyContactName.Text = GetStringValue(reader, "EmergencyContactName");
-            txtEmergencyContactRelationship.Text = GetStringValue(reader, "EmergencyContactRelationship");
-            txtEmergencyContactAddress.Text = GetStringValue(reader, "EmergencyContactAddress");
-
-            // Position Information
-            txtPosition1.Text = GetStringValue(reader, "Position1");
-            txtPosition2.Text = GetStringValue(reader, "Position2");
-            txtSalaryDesired.Text = GetStringValue(reader, "SalaryDesired");
-
-            if (GetStringValue(reader, "SalaryType") == "Hourly")
-                rbHourly.Checked = true;
-            else if (GetStringValue(reader, "SalaryType") == "Yearly")
-                rbYearly.Checked = true;
-
-            txtAvailableStartDate.Text = GetDateValue(reader, "AvailableStartDate");
-
-            string employmentType = GetStringValue(reader, "EmploymentSought");
-            rbFullTime.Checked = employmentType == "Full Time";
-            rbPartTime.Checked = employmentType == "Part Time";
-            rbTemporary.Checked = employmentType == "Temporary";
-
-            // Location preferences
-            chkNashville.Checked = GetBoolValue(reader, "NashvilleLocation");
-            chkFranklin.Checked = GetBoolValue(reader, "FranklinLocation");
-            chkShelbyville.Checked = GetBoolValue(reader, "ShelbyvilleLocation");
-            chkWaynesboro.Checked = GetBoolValue(reader, "WaynesboroLocation");
-            txtOtherLocation.Text = GetStringValue(reader, "OtherLocation");
-
-            // Shift preferences
-            chkFirstShift.Checked = GetBoolValue(reader, "FirstShift");
-            chkSecondShift.Checked = GetBoolValue(reader, "SecondShift");
-            chkThirdShift.Checked = GetBoolValue(reader, "ThirdShift");
-            chkWeekendsOnly.Checked = GetBoolValue(reader, "WeekendsOnly");
-
-            // Days available
-            chkMonday.Checked = GetBoolValue(reader, "MondayAvailable");
-            chkTuesday.Checked = GetBoolValue(reader, "TuesdayAvailable");
-            chkWednesday.Checked = GetBoolValue(reader, "WednesdayAvailable");
-            chkThursday.Checked = GetBoolValue(reader, "ThursdayAvailable");
-            chkFriday.Checked = GetBoolValue(reader, "FridayAvailable");
-            chkSaturday.Checked = GetBoolValue(reader, "SaturdayAvailable");
-            chkSunday.Checked = GetBoolValue(reader, "SundayAvailable");
-
-            // Background Questions
-            rbAppliedBeforeYes.Checked = GetBoolValue(reader, "PreviouslyAppliedToTPA");
-            rbAppliedBeforeNo.Checked = !GetBoolValue(reader, "PreviouslyAppliedToTPA");
-            txtAppliedBeforeWhen.Text = GetStringValue(reader, "PreviousApplicationDate");
-
-            rbWorkedBeforeYes.Checked = GetBoolValue(reader, "PreviouslyWorkedForTPA");
-            rbWorkedBeforeNo.Checked = !GetBoolValue(reader, "PreviouslyWorkedForTPA");
-            txtWorkedBeforeWhen.Text = GetStringValue(reader, "PreviousWorkDate");
-
-            rbFamilyEmployedYes.Checked = GetBoolValue(reader, "FamilyMembersEmployedByTPA");
-            rbFamilyEmployedNo.Checked = !GetBoolValue(reader, "FamilyMembersEmployedByTPA");
-            txtFamilyEmployedWho.Text = GetStringValue(reader, "FamilyMemberDetails");
-
-            rbUSCitizenYes.Checked = GetBoolValue(reader, "USCitizen");
-            rbUSCitizenNo.Checked = !GetBoolValue(reader, "USCitizen");
-            txtAlienNumber.Text = GetStringValue(reader, "AlienNumber");
-
-            rbLegallyEntitledYes.Checked = GetBoolValue(reader, "LegallyEntitledToWork");
-            rbLegallyEntitledNo.Checked = !GetBoolValue(reader, "LegallyEntitledToWork");
-
-            rbOver18Yes.Checked = GetBoolValue(reader, "Is18OrOlder");
-            rbOver18No.Checked = !GetBoolValue(reader, "Is18OrOlder");
-
-            rbArmedForcesYes.Checked = GetBoolValue(reader, "ServedArmedForces");
-            rbArmedForcesNo.Checked = !GetBoolValue(reader, "ServedArmedForces");
-
-            rbConvictedYes.Checked = GetBoolValue(reader, "ConvictedOfCrime");
-            rbConvictedNo.Checked = !GetBoolValue(reader, "ConvictedOfCrime");
-
-            rbAbuseRegistryYes.Checked = GetBoolValue(reader, "OnAbuseRegistry");
-            rbAbuseRegistryNo.Checked = !GetBoolValue(reader, "OnAbuseRegistry");
-
-            rbFoundGuiltyYes.Checked = GetBoolValue(reader, "FoundGuiltyAbuse");
-            rbFoundGuiltyNo.Checked = !GetBoolValue(reader, "FoundGuiltyAbuse");
-
-            rbLicenseRevokedYes.Checked = GetBoolValue(reader, "LicenseRevoked");
-            rbLicenseRevokedNo.Checked = !GetBoolValue(reader, "LicenseRevoked");
-
-            // Special Skills
-            txtSpecialKnowledge.Text = GetStringValue(reader, "SpecialSkills");
-            txtDIDDTraining.Text = GetStringValue(reader, "DIDDTraining");
-
-            // Background form fields
-            txtSSNLast4.Text = GetStringValue(reader, "SSNLast4");
-            txtReferenceAuthName.Text = GetStringValue(reader, "FirstName") + " " + GetStringValue(reader, "LastName");
-
-            // DIDD Authorization fields
-            chkDIDDNoAbuse.Checked = GetBoolValue(reader, "DIDDNoAbuse");
-            chkDIDDHadAbuse.Checked = GetBoolValue(reader, "DIDDHadAbuse");
-            chkProtectionNoAbuse.Checked = GetBoolValue(reader, "ProtectionNoAbuse");
-            chkProtectionHadAbuse.Checked = GetBoolValue(reader, "ProtectionHadAbuse");
-            chkFinalAcknowledgment.Checked = GetBoolValue(reader, "FinalAcknowledgment");
-        }
 
         private void SaveCurrentTabData()
         {
             try
             {
-                SaveApplicationData(false);
+                string currentTab = hfCurrentTab.Value?.ToLower() ?? "personal";
+
+                switch (currentTab)
+                {
+                    case "personal":
+                        SavePersonalTabData();
+                        break;
+                    case "position":
+                        SavePositionTabData();
+                        break;
+                    case "background":
+                        SaveBackgroundTabData();
+                        break;
+                    case "education":
+                        SaveEducationTabData();
+                        break;
+                    case "employment":
+                        SaveEmploymentTabData();
+                        break;
+                    case "references":
+                        SaveReferencesTabData();
+                        break;
+                    case "authorization":
+                        SaveAuthorizationTabData();
+                        break;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Silent save - don't show errors for auto-save
+                ShowErrorMessage("Error saving tab data: " + ex.Message);
             }
         }
 
-        private void SaveApplicationData(bool isSubmission)
+        private void SaveAllTabData()
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            // Save data from all tabs to preserve checkbox states
+            try
             {
-                conn.Open();
-                using (SqlTransaction transaction = conn.BeginTransaction())
+                SavePersonalTabData();
+                SavePositionTabData();
+                SaveBackgroundTabData();
+                SaveEducationTabData();
+                SaveEmploymentTabData();
+                SaveReferencesTabData();
+                SaveAuthorizationTabData();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error saving all tab data: " + ex.Message);
+            }
+        }
+
+        private void SavePersonalTabData()
+        {
+            ViewState["PersonalData"] = new
+            {
+                FirstName = GetTextBoxValue(txtFirstName),
+                MiddleName = GetTextBoxValue(txtMiddleName),
+                LastName = GetTextBoxValue(txtLastName),
+                HomeAddress = GetTextBoxValue(txtHomeAddress),
+                AptNumber = GetTextBoxValue(txtAptNumber),
+                City = GetTextBoxValue(txtCity),
+                State = GetTextBoxValue(txtState),
+                ZipCode = GetTextBoxValue(txtZipCode),
+                SSN = GetTextBoxValue(txtSSN),
+                DriversLicense = GetTextBoxValue(txtDriversLicense),
+                DLState = GetTextBoxValue(txtDLState),
+                PhoneNumber = GetTextBoxValue(txtPhoneNumber),
+                CellNumber = GetTextBoxValue(txtCellNumber),
+                EmergencyContactName = GetTextBoxValue(txtEmergencyContactName),
+                EmergencyContactRelationship = GetTextBoxValue(txtEmergencyContactRelationship),
+                EmergencyContactAddress = GetTextBoxValue(txtEmergencyContactAddress)
+            };
+        }
+
+        private void SavePositionTabData()
+        {
+            ViewState["PositionData"] = new
+            {
+                Position1 = GetTextBoxValue(txtPosition1),
+                Position2 = GetTextBoxValue(txtPosition2),
+                SalaryDesired = GetTextBoxValue(txtSalaryDesired),
+                SalaryType = GetRadioButtonValue(rbHourly) ? "Hourly" : (GetRadioButtonValue(rbYearly) ? "Yearly" : ""),
+                AvailableStartDate = GetTextBoxValue(txtAvailableStartDate),
+                EmploymentSought = GetRadioButtonValue(rbFullTime) ? "Full Time" : (GetRadioButtonValue(rbPartTime) ? "Part Time" : (GetRadioButtonValue(rbTemporary) ? "Temporary" : "")),
+                // Always preserve checkbox values
+                NashvilleLocation = GetCheckBoxValue(chkNashville),
+                FranklinLocation = GetCheckBoxValue(chkFranklin),
+                ShelbyvilleLocation = GetCheckBoxValue(chkShelbyville),
+                WaynesboroLocation = GetCheckBoxValue(chkWaynesboro),
+                OtherLocation = GetCheckBoxValue(chkOtherLocation),
+                FirstShift = GetCheckBoxValue(chkFirstShift),
+                SecondShift = GetCheckBoxValue(chkSecondShift),
+                ThirdShift = GetCheckBoxValue(chkThirdShift),
+                WeekendsOnly = GetCheckBoxValue(chkWeekendsOnly),
+                MondayAvailable = GetCheckBoxValue(chkMonday),
+                TuesdayAvailable = GetCheckBoxValue(chkTuesday),
+                WednesdayAvailable = GetCheckBoxValue(chkWednesday),
+                ThursdayAvailable = GetCheckBoxValue(chkThursday),
+                FridayAvailable = GetCheckBoxValue(chkFriday),
+                SaturdayAvailable = GetCheckBoxValue(chkSaturday),
+                SundayAvailable = GetCheckBoxValue(chkSunday)
+            };
+        }
+
+        private void SaveBackgroundTabData()
+        {
+            ViewState["BackgroundData"] = new
+            {
+                PreviouslyAppliedToTPA = GetRadioButtonValue(rbAppliedBeforeYes),
+                PreviousApplicationDate = GetTextBoxValue(txtAppliedBeforeWhen),
+                PreviouslyWorkedForTPA = GetRadioButtonValue(rbWorkedBeforeYes),
+                PreviousWorkDate = GetTextBoxValue(txtWorkedBeforeWhen),
+                FamilyMembersEmployedByTPA = GetRadioButtonValue(rbFamilyEmployedYes),
+                FamilyMemberDetails = GetTextBoxValue(txtFamilyEmployedWho),
+                ConvictedCriminal7Years = GetRadioButtonValue(rbConvicted7YearsYes),
+                ChargedInvestigation = GetRadioButtonValue(rbChargedInvestigationYes),
+                DIDDNoAbuse = GetCheckBoxValue(chkDIDDNoAbuse),
+                DIDDHadAbuse = GetCheckBoxValue(chkDIDDHadAbuse)
+            };
+        }
+
+        private void SaveEducationTabData()
+        {
+            ViewState["EducationData"] = new
+            {
+                ElementarySchool = GetTextBoxValue(txtElementarySchool),
+                HighSchool = GetTextBoxValue(txtHighSchool),
+                UndergraduateSchool = GetTextBoxValue(txtUndergraduateSchool),
+                GraduateSchool = GetTextBoxValue(txtGraduateSchool),
+                ElementaryDiploma = GetRadioButtonValue(rbElemDiplomaYes),
+                HighSchoolDiploma = GetRadioButtonValue(rbHSDiplomaYes),
+                UndergraduateDegree = GetRadioButtonValue(rbUGDegreeYes),
+                GraduateDegree = GetRadioButtonValue(rbGradDegreeYes),
+                // Year checkboxes
+                Elem1 = GetCheckBoxValue(chkElem1),
+                Elem2 = GetCheckBoxValue(chkElem2),
+                Elem3 = GetCheckBoxValue(chkElem3),
+                Elem4 = GetCheckBoxValue(chkElem4),
+                Elem5 = GetCheckBoxValue(chkElem5),
+                HS9 = GetCheckBoxValue(chkHS9),
+                HS10 = GetCheckBoxValue(chkHS10),
+                HS11 = GetCheckBoxValue(chkHS11),
+                HS12 = GetCheckBoxValue(chkHS12),
+                UG1 = GetCheckBoxValue(chkUG1),
+                UG2 = GetCheckBoxValue(chkUG2),
+                UG3 = GetCheckBoxValue(chkUG3),
+                UG4 = GetCheckBoxValue(chkUG4),
+                Grad1 = GetCheckBoxValue(chkGrad1),
+                Grad2 = GetCheckBoxValue(chkGrad2),
+                Grad3 = GetCheckBoxValue(chkGrad3),
+                Grad4 = GetCheckBoxValue(chkGrad4),
+                Grad5 = GetCheckBoxValue(chkGrad5)
+            };
+        }
+
+        private void SaveEmploymentTabData()
+        {
+            ViewState["EmploymentData"] = new
+            {
+                // Employment history will be handled by the existing controls in the ASPX
+                // This method can be expanded when those controls are identified
+            };
+        }
+
+        private void SaveReferencesTabData()
+        {
+            ViewState["ReferencesData"] = new
+            {
+                // References will be handled by the existing controls in the ASPX
+                // This method can be expanded when those controls are identified
+            };
+        }
+
+        private void SaveAuthorizationTabData()
+        {
+            ViewState["AuthorizationData"] = new
+            {
+                FinalAcknowledgment = GetCheckBoxValue(chkFinalAcknowledgment)
+            };
+        }
+
+        // Helper methods for safe value extraction
+        private string GetTextBoxValue(TextBox textBox)
+        {
+            return textBox?.Text ?? "";
+        }
+
+        private bool GetCheckBoxValue(CheckBox checkBox)
+        {
+            return checkBox?.Checked ?? false;
+        }
+
+        private bool GetRadioButtonValue(RadioButton radioButton)
+        {
+            return radioButton?.Checked ?? false;
+        }
+
+        private void SaveApplicationData(bool isSubmitted)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["TPAHRConnectionString"].ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                using (SqlTransaction transaction = connection.BeginTransaction())
                 {
                     try
                     {
-                        int applicationId;
+                        // Save all tab data before database operations
+                        SaveAllTabData();
 
-                        if (!string.IsNullOrEmpty(hfApplicationId.Value))
-                        {
-                            // Update existing application
-                            applicationId = Convert.ToInt32(hfApplicationId.Value);
-                            UpdateApplication(conn, transaction, applicationId, isSubmission);
-                        }
-                        else
-                        {
-                            // Insert new application
-                            applicationId = InsertApplication(conn, transaction, isSubmission);
-                            hfApplicationId.Value = applicationId.ToString();
-                        }
+                        // Save main application record
+                        int applicationId = SaveMainApplicationRecord(connection, transaction, isSubmitted);
 
-                        // Save related data
-                        SaveEducationData(applicationId, conn, transaction);
-                        SaveLicensesData(applicationId, conn, transaction);
-                        SaveEmploymentHistoryData(applicationId, conn, transaction);
-                        SaveReferencesData(applicationId, conn, transaction);
-                        SaveCriminalHistoryData(applicationId, conn, transaction);
-                        SaveFormerAddressesData(applicationId, conn, transaction);
+                        // Save related data (when controls are identified)
+                        // SaveEducationData(connection, transaction, applicationId);
+                        // SaveEmploymentHistoryData(connection, transaction, applicationId);
+                        // SaveReferencesData(connection, transaction, applicationId);
 
                         transaction.Commit();
+
+                        if (string.IsNullOrEmpty(hfApplicationId.Value))
+                        {
+                            hfApplicationId.Value = applicationId.ToString();
+                        }
                     }
-                    catch
+                    catch (Exception)
                     {
                         transaction.Rollback();
                         throw;
@@ -491,632 +667,323 @@ namespace Applications
             }
         }
 
-        private int InsertApplication(SqlConnection conn, SqlTransaction transaction, bool isSubmission)
+        private int SaveMainApplicationRecord(SqlConnection connection, SqlTransaction transaction, bool isSubmitted)
         {
-            string applicationNumber = GenerateApplicationNumber();
-            string status = isSubmission ? "Submitted" : "Draft";
+            string status = isSubmitted ? "Submitted" : "Draft";
+            bool isUpdate = !string.IsNullOrEmpty(hfApplicationId.Value);
 
-            string sql = @"
-                INSERT INTO [EmploymentApplications] (
-                    [ApplicationNumber], [ApplicationDate], [Status], [EmployeeId],
-                    [FirstName], [MiddleName], [LastName], [HomeAddress], [AptNumber],
-                    [City], [State], [ZipCode], [SSN], [DriversLicense], [DLState],
-                    [PhoneNumber], [CellNumber], [EmergencyContactName], [EmergencyContactRelationship],
-                    [EmergencyContactAddress], [Position1], [Position2],
-                    [SalaryDesired], [SalaryType], [EmploymentSought], [AvailableStartDate],
-                    [NashvilleLocation], [FranklinLocation], [ShelbyvilleLocation], [WaynesboroLocation], [OtherLocation],
-                    [FirstShift], [SecondShift], [ThirdShift], [WeekendsOnly],
-                    [MondayAvailable], [TuesdayAvailable], [WednesdayAvailable], [ThursdayAvailable],
-                    [FridayAvailable], [SaturdayAvailable], [SundayAvailable],
-                    [PreviouslyAppliedToTPA], [PreviousApplicationDate], [PreviouslyWorkedForTPA], [PreviousWorkDate],
-                    [FamilyMembersEmployedByTPA], [FamilyMemberDetails],
-                    [USCitizen], [PermanentResident], [AlienNumber], [LegallyEntitledToWork], [Is18OrOlder],
-                    [ServedArmedForces], [ConvictedOfCrime], [OnAbuseRegistry], [FoundGuiltyAbuse], [LicenseRevoked],
-                    [SSNLast4], [NameOther], [YearNameChange], [DriversLicenseNumber], [DriversLicenseState],
-                    [DateOfBirth], [NameOnLicense], [ConvictedCriminal7Years], [ChargedInvestigation],
-                    [DIDDNoAbuse], [DIDDHadAbuse], [ProtectionNoAbuse], [ProtectionHadAbuse], [FinalAcknowledgment],
-                    [SpecialSkills], [DIDDTraining],
-                    [CreatedAt], [UpdatedAt], [SubmittedAt]
-                )
-                VALUES (
-                    @ApplicationNumber, @ApplicationDate, @Status, @EmployeeId,
-                    @FirstName, @MiddleName, @LastName, @HomeAddress, @AptNumber,
-                    @City, @State, @ZipCode, @SSN, @DriversLicense, @DLState,
-                    @PhoneNumber, @CellNumber, @EmergencyContactName, @EmergencyContactRelationship,
-                    @EmergencyContactAddress, @Position1, @Position2,
-                    @SalaryDesired, @SalaryType, @EmploymentSought, @AvailableStartDate,
-                    @NashvilleLocation, @FranklinLocation, @ShelbyvilleLocation, @WaynesboroLocation, @OtherLocation,
-                    @FirstShift, @SecondShift, @ThirdShift, @WeekendsOnly,
-                    @MondayAvailable, @TuesdayAvailable, @WednesdayAvailable, @ThursdayAvailable,
-                    @FridayAvailable, @SaturdayAvailable, @SundayAvailable,
-                    @PreviouslyAppliedToTPA, @PreviousApplicationDate, @PreviouslyWorkedForTPA, @PreviousWorkDate,
-                    @FamilyMembersEmployedByTPA, @FamilyMemberDetails,
-                    @USCitizen, @PermanentResident, @AlienNumber, @LegallyEntitledToWork, @Is18OrOlder,
-                    @ServedArmedForces, @ConvictedOfCrime, @OnAbuseRegistry, @FoundGuiltyAbuse, @LicenseRevoked,
-                    @SSNLast4, @NameOther, @YearNameChange, @DriversLicenseNumber, @DriversLicenseState,
-                    @DateOfBirth, @NameOnLicense, @ConvictedCriminal7Years, @ChargedInvestigation,
-                    @DIDDNoAbuse, @DIDDHadAbuse, @ProtectionNoAbuse, @ProtectionHadAbuse, @FinalAcknowledgment,
-                    @SpecialSkills, @DIDDTraining,
-                    @CreatedAt, @UpdatedAt, @SubmittedAt
-                );
-                SELECT SCOPE_IDENTITY();";
-
-            using (SqlCommand cmd = new SqlCommand(sql, conn, transaction))
+            string sql;
+            if (isUpdate)
             {
-                AddApplicationParameters(cmd, applicationNumber, status, isSubmission);
-                return Convert.ToInt32(cmd.ExecuteScalar());
+                sql = @"
+                    UPDATE [EmploymentApplications] SET
+                        [Status] = @Status,
+                        [FirstName] = @FirstName, [MiddleName] = @MiddleName, [LastName] = @LastName,
+                        [HomeAddress] = @HomeAddress, [AptNumber] = @AptNumber, [City] = @City, [State] = @State, [ZipCode] = @ZipCode,
+                        [SSN] = @SSN, [DriversLicense] = @DriversLicense, [DLState] = @DLState,
+                        [PhoneNumber] = @PhoneNumber, [CellNumber] = @CellNumber,
+                        [EmergencyContactName] = @EmergencyContactName, [EmergencyContactRelationship] = @EmergencyContactRelationship,
+                        [EmergencyContactAddress] = @EmergencyContactAddress,
+                        [Position1] = @Position1, [Position2] = @Position2, [SalaryDesired] = @SalaryDesired,
+                        [SalaryType] = @SalaryType, [EmploymentSought] = @EmploymentSought, [AvailableStartDate] = @AvailableStartDate,
+                        [NashvilleLocation] = @NashvilleLocation, [FranklinLocation] = @FranklinLocation,
+                        [ShelbyvilleLocation] = @ShelbyvilleLocation, [WaynesboroLocation] = @WaynesboroLocation, [OtherLocation] = @OtherLocation,
+                        [FirstShift] = @FirstShift, [SecondShift] = @SecondShift, [ThirdShift] = @ThirdShift, [WeekendsOnly] = @WeekendsOnly,
+                        [MondayAvailable] = @MondayAvailable, [TuesdayAvailable] = @TuesdayAvailable, [WednesdayAvailable] = @WednesdayAvailable,
+                        [ThursdayAvailable] = @ThursdayAvailable, [FridayAvailable] = @FridayAvailable, [SaturdayAvailable] = @SaturdayAvailable, [SundayAvailable] = @SundayAvailable,
+                        [PreviouslyAppliedToTPA] = @PreviouslyAppliedToTPA, [PreviousApplicationDate] = @PreviousApplicationDate,
+                        [PreviouslyWorkedForTPA] = @PreviouslyWorkedForTPA, [PreviousWorkDate] = @PreviousWorkDate,
+                        [FamilyMembersEmployedByTPA] = @FamilyMembersEmployedByTPA, [FamilyMemberDetails] = @FamilyMemberDetails,
+                        [ConvictedCriminal7Years] = @ConvictedCriminal7Years, [ChargedInvestigation] = @ChargedInvestigation,
+                        [DIDDNoAbuse] = @DIDDNoAbuse, [DIDDHadAbuse] = @DIDDHadAbuse,
+                        [FinalAcknowledgment] = @FinalAcknowledgment,
+                        [UpdatedAt] = @UpdatedAt" + (isSubmitted ? ", [SubmittedAt] = @SubmittedAt" : "") + @"
+                    WHERE [Id] = @ApplicationId";
             }
-        }
-
-        private void UpdateApplication(SqlConnection conn, SqlTransaction transaction, int applicationId, bool isSubmission)
-        {
-            string status = isSubmission ? "Submitted" : "Draft";
-
-            string sql = @"
-                UPDATE [EmploymentApplications] SET
-                    [Status] = @Status,
-                    [FirstName] = @FirstName, [MiddleName] = @MiddleName, [LastName] = @LastName,
-                    [HomeAddress] = @HomeAddress, [AptNumber] = @AptNumber,
-                    [City] = @City, [State] = @State, [ZipCode] = @ZipCode,
-                    [SSN] = @SSN, [DriversLicense] = @DriversLicense, [DLState] = @DLState,
-                    [PhoneNumber] = @PhoneNumber, [CellNumber] = @CellNumber,
-                    [EmergencyContactName] = @EmergencyContactName, [EmergencyContactRelationship] = @EmergencyContactRelationship,
-                    [EmergencyContactAddress] = @EmergencyContactAddress, [Position1] = @Position1, [Position2] = @Position2,
-                    [SalaryDesired] = @SalaryDesired, [SalaryType] = @SalaryType, [EmploymentSought] = @EmploymentSought,
-                    [AvailableStartDate] = @AvailableStartDate,
-                    [NashvilleLocation] = @NashvilleLocation, [FranklinLocation] = @FranklinLocation,
-                    [ShelbyvilleLocation] = @ShelbyvilleLocation, [WaynesboroLocation] = @WaynesboroLocation,
-                    [OtherLocation] = @OtherLocation, [FirstShift] = @FirstShift, [SecondShift] = @SecondShift,
-                    [ThirdShift] = @ThirdShift, [WeekendsOnly] = @WeekendsOnly,
-                    [MondayAvailable] = @MondayAvailable, [TuesdayAvailable] = @TuesdayAvailable,
-                    [WednesdayAvailable] = @WednesdayAvailable, [ThursdayAvailable] = @ThursdayAvailable,
-                    [FridayAvailable] = @FridayAvailable, [SaturdayAvailable] = @SaturdayAvailable,
-                    [SundayAvailable] = @SundayAvailable,
-                    [PreviouslyAppliedToTPA] = @PreviouslyAppliedToTPA, [PreviousApplicationDate] = @PreviousApplicationDate,
-                    [PreviouslyWorkedForTPA] = @PreviouslyWorkedForTPA, [PreviousWorkDate] = @PreviousWorkDate,
-                    [FamilyMembersEmployedByTPA] = @FamilyMembersEmployedByTPA, [FamilyMemberDetails] = @FamilyMemberDetails,
-                    [USCitizen] = @USCitizen, [PermanentResident] = @PermanentResident, [AlienNumber] = @AlienNumber,
-                    [LegallyEntitledToWork] = @LegallyEntitledToWork, [Is18OrOlder] = @Is18OrOlder,
-                    [ServedArmedForces] = @ServedArmedForces, [ConvictedOfCrime] = @ConvictedOfCrime,
-                    [OnAbuseRegistry] = @OnAbuseRegistry, [FoundGuiltyAbuse] = @FoundGuiltyAbuse,
-                    [LicenseRevoked] = @LicenseRevoked, [SSNLast4] = @SSNLast4, [NameOther] = @NameOther,
-                    [YearNameChange] = @YearNameChange, [DriversLicenseNumber] = @DriversLicenseNumber,
-                    [DriversLicenseState] = @DriversLicenseState, [DateOfBirth] = @DateOfBirth,
-                    [NameOnLicense] = @NameOnLicense, [ConvictedCriminal7Years] = @ConvictedCriminal7Years,
-                    [ChargedInvestigation] = @ChargedInvestigation, [DIDDNoAbuse] = @DIDDNoAbuse,
-                    [DIDDHadAbuse] = @DIDDHadAbuse, [ProtectionNoAbuse] = @ProtectionNoAbuse,
-                    [ProtectionHadAbuse] = @ProtectionHadAbuse, [FinalAcknowledgment] = @FinalAcknowledgment,
-                    [SpecialSkills] = @SpecialSkills, [DIDDTraining] = @DIDDTraining,
-                    [UpdatedAt] = @UpdatedAt" + (isSubmission ? ", [SubmittedAt] = @SubmittedAt" : "") + @"
-                WHERE [Id] = @ApplicationId";
-
-            using (SqlCommand cmd = new SqlCommand(sql, conn, transaction))
+            else
             {
-                cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                AddApplicationParameters(cmd, null, status, isSubmission);
-            }
-        }
-
-        private void AddApplicationParameters(SqlCommand cmd, string applicationNumber, string status, bool isSubmission)
-        {
-            if (!string.IsNullOrEmpty(applicationNumber))
-                cmd.Parameters.AddWithValue("@ApplicationNumber", applicationNumber);
-
-            cmd.Parameters.AddWithValue("@ApplicationDate", GetDateOrNull(txtApplicationDate.Text) ?? DateTime.Now);
-            cmd.Parameters.AddWithValue("@Status", status);
-            cmd.Parameters.AddWithValue("@EmployeeId", currentEmployeeId);
-
-            // Personal Information
-            cmd.Parameters.AddWithValue("@FirstName", GetTextOrNull(txtFirstName.Text));
-            cmd.Parameters.AddWithValue("@MiddleName", GetTextOrNull(txtMiddleName.Text));
-            cmd.Parameters.AddWithValue("@LastName", GetTextOrNull(txtLastName.Text));
-            cmd.Parameters.AddWithValue("@HomeAddress", GetTextOrNull(txtHomeAddress.Text));
-            cmd.Parameters.AddWithValue("@AptNumber", GetTextOrNull(txtAptNumber.Text));
-            cmd.Parameters.AddWithValue("@City", GetTextOrNull(txtCity.Text));
-            cmd.Parameters.AddWithValue("@State", GetTextOrNull(txtState.Text));
-            cmd.Parameters.AddWithValue("@ZipCode", GetTextOrNull(txtZipCode.Text));
-            cmd.Parameters.AddWithValue("@SSN", GetTextOrNull(txtSSN.Text));
-            cmd.Parameters.AddWithValue("@DriversLicense", GetTextOrNull(txtDriversLicense.Text));
-            cmd.Parameters.AddWithValue("@DLState", GetTextOrNull(txtDLState.Text));
-            cmd.Parameters.AddWithValue("@PhoneNumber", GetTextOrNull(txtPhoneNumber.Text));
-            cmd.Parameters.AddWithValue("@CellNumber", GetTextOrNull(txtCellNumber.Text));
-            cmd.Parameters.AddWithValue("@EmergencyContactName", GetTextOrNull(txtEmergencyContactName.Text));
-            cmd.Parameters.AddWithValue("@EmergencyContactRelationship", GetTextOrNull(txtEmergencyContactRelationship.Text));
-            cmd.Parameters.AddWithValue("@EmergencyContactAddress", GetTextOrNull(txtEmergencyContactAddress.Text));
-
-            // Position Information
-            cmd.Parameters.AddWithValue("@Position1", GetTextOrNull(txtPosition1.Text));
-            cmd.Parameters.AddWithValue("@Position2", GetTextOrNull(txtPosition2.Text));
-            cmd.Parameters.AddWithValue("@SalaryDesired", GetDecimalOrNull(txtSalaryDesired.Text));
-            cmd.Parameters.AddWithValue("@SalaryType", GetSalaryType());
-            cmd.Parameters.AddWithValue("@EmploymentSought", GetEmploymentType());
-            cmd.Parameters.AddWithValue("@AvailableStartDate", GetDateOrNull(txtAvailableStartDate.Text));
-
-            // Location preferences
-            cmd.Parameters.AddWithValue("@NashvilleLocation", chkNashville.Checked);
-            cmd.Parameters.AddWithValue("@FranklinLocation", chkFranklin.Checked);
-            cmd.Parameters.AddWithValue("@ShelbyvilleLocation", chkShelbyville.Checked);
-            cmd.Parameters.AddWithValue("@WaynesboroLocation", chkWaynesboro.Checked);
-            cmd.Parameters.AddWithValue("@OtherLocation", GetTextOrNull(txtOtherLocation.Text));
-
-            // Shift preferences
-            cmd.Parameters.AddWithValue("@FirstShift", chkFirstShift.Checked);
-            cmd.Parameters.AddWithValue("@SecondShift", chkSecondShift.Checked);
-            cmd.Parameters.AddWithValue("@ThirdShift", chkThirdShift.Checked);
-            cmd.Parameters.AddWithValue("@WeekendsOnly", chkWeekendsOnly.Checked);
-
-            // Days available
-            cmd.Parameters.AddWithValue("@MondayAvailable", chkMonday.Checked);
-            cmd.Parameters.AddWithValue("@TuesdayAvailable", chkTuesday.Checked);
-            cmd.Parameters.AddWithValue("@WednesdayAvailable", chkWednesday.Checked);
-            cmd.Parameters.AddWithValue("@ThursdayAvailable", chkThursday.Checked);
-            cmd.Parameters.AddWithValue("@FridayAvailable", chkFriday.Checked);
-            cmd.Parameters.AddWithValue("@SaturdayAvailable", chkSaturday.Checked);
-            cmd.Parameters.AddWithValue("@SundayAvailable", chkSunday.Checked);
-
-            // Background Questions
-            cmd.Parameters.AddWithValue("@PreviouslyAppliedToTPA", rbAppliedBeforeYes.Checked);
-            cmd.Parameters.AddWithValue("@PreviousApplicationDate", GetTextOrNull(txtAppliedBeforeWhen.Text));
-            cmd.Parameters.AddWithValue("@PreviouslyWorkedForTPA", rbWorkedBeforeYes.Checked);
-            cmd.Parameters.AddWithValue("@PreviousWorkDate", GetTextOrNull(txtWorkedBeforeWhen.Text));
-            cmd.Parameters.AddWithValue("@FamilyMembersEmployedByTPA", rbFamilyEmployedYes.Checked);
-            cmd.Parameters.AddWithValue("@FamilyMemberDetails", GetTextOrNull(txtFamilyEmployedWho.Text));
-            cmd.Parameters.AddWithValue("@USCitizen", rbUSCitizenYes.Checked);
-            cmd.Parameters.AddWithValue("@PermanentResident", rbUSCitizenYes.Checked); // Same as US Citizen for this form
-            cmd.Parameters.AddWithValue("@AlienNumber", GetTextOrNull(txtAlienNumber.Text));
-            cmd.Parameters.AddWithValue("@LegallyEntitledToWork", rbLegallyEntitledYes.Checked);
-            cmd.Parameters.AddWithValue("@Is18OrOlder", rbOver18Yes.Checked);
-            cmd.Parameters.AddWithValue("@ServedArmedForces", rbArmedForcesYes.Checked);
-            cmd.Parameters.AddWithValue("@ConvictedOfCrime", rbConvictedYes.Checked);
-            cmd.Parameters.AddWithValue("@OnAbuseRegistry", rbAbuseRegistryYes.Checked);
-            cmd.Parameters.AddWithValue("@FoundGuiltyAbuse", rbFoundGuiltyYes.Checked);
-            cmd.Parameters.AddWithValue("@LicenseRevoked", rbLicenseRevokedYes.Checked);
-
-            // Background form fields
-            cmd.Parameters.AddWithValue("@SSNLast4", GetTextOrNull(txtSSNLast4.Text));
-            cmd.Parameters.AddWithValue("@NameOther", GetTextOrNull(txtBGOtherName.Text));
-            cmd.Parameters.AddWithValue("@YearNameChange", GetTextOrNull(txtBGNameChangeYear.Text));
-            cmd.Parameters.AddWithValue("@DriversLicenseNumber", GetTextOrNull(txtBGDriversLicense.Text));
-            cmd.Parameters.AddWithValue("@DriversLicenseState", GetTextOrNull(txtBGDLState.Text));
-            cmd.Parameters.AddWithValue("@DateOfBirth", GetDateOrNull(txtBGDateOfBirth.Text));
-            cmd.Parameters.AddWithValue("@NameOnLicense", GetTextOrNull(txtBGNameOnLicense.Text));
-            cmd.Parameters.AddWithValue("@ConvictedCriminal7Years", rbConvicted7YearsYes.Checked);
-            cmd.Parameters.AddWithValue("@ChargedInvestigation", rbChargedInvestigationYes.Checked);
-
-            // DIDD Authorization
-            cmd.Parameters.AddWithValue("@DIDDNoAbuse", chkDIDDNoAbuse.Checked);
-            cmd.Parameters.AddWithValue("@DIDDHadAbuse", chkDIDDHadAbuse.Checked);
-            cmd.Parameters.AddWithValue("@ProtectionNoAbuse", chkProtectionNoAbuse.Checked);
-            cmd.Parameters.AddWithValue("@ProtectionHadAbuse", chkProtectionHadAbuse.Checked);
-            cmd.Parameters.AddWithValue("@FinalAcknowledgment", chkFinalAcknowledgment.Checked);
-
-            // Special Skills
-            cmd.Parameters.AddWithValue("@SpecialSkills", GetTextOrNull(txtSpecialKnowledge.Text));
-            cmd.Parameters.AddWithValue("@DIDDTraining", GetTextOrNull(txtDIDDTraining.Text));
-
-            // Timestamps
-            cmd.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
-            cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.UtcNow);
-
-            if (isSubmission)
-                cmd.Parameters.AddWithValue("@SubmittedAt", DateTime.UtcNow);
-
-            cmd.ExecuteNonQuery();
-        }
-
-        private void SaveEducationData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing education records
-            string deleteSql = "DELETE FROM [EmploymentApplicationEducation] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
+                sql = @"
+                    INSERT INTO [EmploymentApplications] (
+                        [ApplicationNumber], [ApplicationDate], [Status],
+                        [FirstName], [MiddleName], [LastName], [HomeAddress], [AptNumber], [City], [State], [ZipCode],
+                        [SSN], [DriversLicense], [DLState], [PhoneNumber], [CellNumber],
+                        [EmergencyContactName], [EmergencyContactRelationship], [EmergencyContactAddress],
+                        [Position1], [Position2], [SalaryDesired], [SalaryType], [EmploymentSought], [AvailableStartDate],
+                        [NashvilleLocation], [FranklinLocation], [ShelbyvilleLocation], [WaynesboroLocation], [OtherLocation],
+                        [FirstShift], [SecondShift], [ThirdShift], [WeekendsOnly],
+                        [MondayAvailable], [TuesdayAvailable], [WednesdayAvailable], [ThursdayAvailable],
+                        [FridayAvailable], [SaturdayAvailable], [SundayAvailable],
+                        [PreviouslyAppliedToTPA], [PreviousApplicationDate], [PreviouslyWorkedForTPA], [PreviousWorkDate],
+                        [FamilyMembersEmployedByTPA], [FamilyMemberDetails],
+                        [ConvictedCriminal7Years], [ChargedInvestigation], [DIDDNoAbuse], [DIDDHadAbuse],
+                        [FinalAcknowledgment],
+                        [CreatedAt], [UpdatedAt]" + (isSubmitted ? ", [SubmittedAt]" : "") + @"
+                    )
+                    VALUES (
+                        @ApplicationNumber, @ApplicationDate, @Status,
+                        @FirstName, @MiddleName, @LastName, @HomeAddress, @AptNumber, @City, @State, @ZipCode,
+                        @SSN, @DriversLicense, @DLState, @PhoneNumber, @CellNumber,
+                        @EmergencyContactName, @EmergencyContactRelationship, @EmergencyContactAddress,
+                        @Position1, @Position2, @SalaryDesired, @SalaryType, @EmploymentSought, @AvailableStartDate,
+                        @NashvilleLocation, @FranklinLocation, @ShelbyvilleLocation, @WaynesboroLocation, @OtherLocation,
+                        @FirstShift, @SecondShift, @ThirdShift, @WeekendsOnly,
+                        @MondayAvailable, @TuesdayAvailable, @WednesdayAvailable, @ThursdayAvailable,
+                        @FridayAvailable, @SaturdayAvailable, @SundayAvailable,
+                        @PreviouslyAppliedToTPA, @PreviousApplicationDate, @PreviouslyWorkedForTPA, @PreviousWorkDate,
+                        @FamilyMembersEmployedByTPA, @FamilyMemberDetails,
+                        @ConvictedCriminal7Years, @ChargedInvestigation, @DIDDNoAbuse, @DIDDHadAbuse,
+                        @FinalAcknowledgment,
+                        @CreatedAt, @UpdatedAt" + (isSubmitted ? ", @SubmittedAt" : "") + @"
+                    ); SELECT SCOPE_IDENTITY();";
             }
 
-            // Insert education records
-            var educationLevels = new[]
+            using (SqlCommand command = new SqlCommand(sql, connection, transaction))
             {
-                new { Level = "Elementary", School = txtElementarySchool.Text, Major = txtElemMajor.Text, Skills = txtElemSkills.Text, Diploma = rbElemDiplomaYes.Checked },
-                new { Level = "High School", School = txtHighSchool.Text, Major = txtHSMajor.Text, Skills = txtHSSkills.Text, Diploma = rbHSDiplomaYes.Checked },
-                new { Level = "Undergraduate", School = txtUndergraduateSchool.Text, Major = txtUGMajor.Text, Skills = txtUGSkills.Text, Diploma = rbUGDegreeYes.Checked },
-                new { Level = "Graduate", School = txtGraduateSchool.Text, Major = txtGradMajor.Text, Skills = txtGradSkills.Text, Diploma = rbGradDegreeYes.Checked }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationEducation] 
-                ([ApplicationId], [EducationLevel], [SchoolName], [Major], [Skills], [DiplomaReceived])
-                VALUES (@ApplicationId, @EducationLevel, @SchoolName, @Major, @Skills, @DiplomaReceived)";
-
-            foreach (var education in educationLevels)
-            {
-                if (!string.IsNullOrWhiteSpace(education.School))
+                // Add parameters
+                if (isUpdate)
                 {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
+                    command.Parameters.AddWithValue("@ApplicationId", int.Parse(hfApplicationId.Value));
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("@ApplicationNumber", ViewState["ApplicationNumber"]?.ToString() ?? "");
+                    command.Parameters.AddWithValue("@ApplicationDate", DateTime.Now);
+                    command.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                }
+
+                command.Parameters.AddWithValue("@Status", status);
+                command.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                if (isSubmitted)
+                {
+                    command.Parameters.AddWithValue("@SubmittedAt", DateTime.Now);
+                }
+
+                // Personal Information
+                command.Parameters.AddWithValue("@FirstName", GetTextBoxValue(txtFirstName));
+                command.Parameters.AddWithValue("@MiddleName", GetTextBoxValue(txtMiddleName));
+                command.Parameters.AddWithValue("@LastName", GetTextBoxValue(txtLastName));
+                command.Parameters.AddWithValue("@HomeAddress", GetTextBoxValue(txtHomeAddress));
+                command.Parameters.AddWithValue("@AptNumber", GetTextBoxValue(txtAptNumber));
+                command.Parameters.AddWithValue("@City", GetTextBoxValue(txtCity));
+                command.Parameters.AddWithValue("@State", GetTextBoxValue(txtState));
+                command.Parameters.AddWithValue("@ZipCode", GetTextBoxValue(txtZipCode));
+                command.Parameters.AddWithValue("@SSN", GetTextBoxValue(txtSSN));
+                command.Parameters.AddWithValue("@DriversLicense", GetTextBoxValue(txtDriversLicense));
+                command.Parameters.AddWithValue("@DLState", GetTextBoxValue(txtDLState));
+                command.Parameters.AddWithValue("@PhoneNumber", GetTextBoxValue(txtPhoneNumber));
+                command.Parameters.AddWithValue("@CellNumber", GetTextBoxValue(txtCellNumber));
+                command.Parameters.AddWithValue("@EmergencyContactName", GetTextBoxValue(txtEmergencyContactName));
+                command.Parameters.AddWithValue("@EmergencyContactRelationship", GetTextBoxValue(txtEmergencyContactRelationship));
+                command.Parameters.AddWithValue("@EmergencyContactAddress", GetTextBoxValue(txtEmergencyContactAddress));
+
+                // Position Information
+                command.Parameters.AddWithValue("@Position1", GetTextBoxValue(txtPosition1));
+                command.Parameters.AddWithValue("@Position2", GetTextBoxValue(txtPosition2));
+
+                decimal salaryDesired = 0;
+                decimal.TryParse(GetTextBoxValue(txtSalaryDesired), out salaryDesired);
+                command.Parameters.AddWithValue("@SalaryDesired", salaryDesired);
+
+                command.Parameters.AddWithValue("@SalaryType", GetRadioButtonValue(rbHourly) ? "Hourly" : (GetRadioButtonValue(rbYearly) ? "Yearly" : ""));
+                command.Parameters.AddWithValue("@EmploymentSought", GetRadioButtonValue(rbFullTime) ? "Full Time" : (GetRadioButtonValue(rbPartTime) ? "Part Time" : (GetRadioButtonValue(rbTemporary) ? "Temporary" : "")));
+
+                DateTime availableStartDate;
+                if (DateTime.TryParse(GetTextBoxValue(txtAvailableStartDate), out availableStartDate))
+                {
+                    command.Parameters.AddWithValue("@AvailableStartDate", availableStartDate);
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("@AvailableStartDate", DBNull.Value);
+                }
+
+                // Location Checkboxes - Always save current checkbox states
+                command.Parameters.AddWithValue("@NashvilleLocation", GetCheckBoxValue(chkNashville));
+                command.Parameters.AddWithValue("@FranklinLocation", GetCheckBoxValue(chkFranklin));
+                command.Parameters.AddWithValue("@ShelbyvilleLocation", GetCheckBoxValue(chkShelbyville));
+                command.Parameters.AddWithValue("@WaynesboroLocation", GetCheckBoxValue(chkWaynesboro));
+                command.Parameters.AddWithValue("@OtherLocation", GetCheckBoxValue(chkOtherLocation));
+
+                // Shift Checkboxes
+                command.Parameters.AddWithValue("@FirstShift", GetCheckBoxValue(chkFirstShift));
+                command.Parameters.AddWithValue("@SecondShift", GetCheckBoxValue(chkSecondShift));
+                command.Parameters.AddWithValue("@ThirdShift", GetCheckBoxValue(chkThirdShift));
+                command.Parameters.AddWithValue("@WeekendsOnly", GetCheckBoxValue(chkWeekendsOnly));
+
+                // Days Available Checkboxes
+                command.Parameters.AddWithValue("@MondayAvailable", GetCheckBoxValue(chkMonday));
+                command.Parameters.AddWithValue("@TuesdayAvailable", GetCheckBoxValue(chkTuesday));
+                command.Parameters.AddWithValue("@WednesdayAvailable", GetCheckBoxValue(chkWednesday));
+                command.Parameters.AddWithValue("@ThursdayAvailable", GetCheckBoxValue(chkThursday));
+                command.Parameters.AddWithValue("@FridayAvailable", GetCheckBoxValue(chkFriday));
+                command.Parameters.AddWithValue("@SaturdayAvailable", GetCheckBoxValue(chkSaturday));
+                command.Parameters.AddWithValue("@SundayAvailable", GetCheckBoxValue(chkSunday));
+
+                // Background Information
+                command.Parameters.AddWithValue("@PreviouslyAppliedToTPA", GetRadioButtonValue(rbAppliedBeforeYes));
+                command.Parameters.AddWithValue("@PreviousApplicationDate", GetTextBoxValue(txtAppliedBeforeWhen));
+                command.Parameters.AddWithValue("@PreviouslyWorkedForTPA", GetRadioButtonValue(rbWorkedBeforeYes));
+                command.Parameters.AddWithValue("@PreviousWorkDate", GetTextBoxValue(txtWorkedBeforeWhen));
+                command.Parameters.AddWithValue("@FamilyMembersEmployedByTPA", GetRadioButtonValue(rbFamilyEmployedYes));
+                command.Parameters.AddWithValue("@FamilyMemberDetails", GetTextBoxValue(txtFamilyEmployedWho));
+
+                // Criminal/Background checks
+                command.Parameters.AddWithValue("@ConvictedCriminal7Years", GetRadioButtonValue(rbConvicted7YearsYes));
+                command.Parameters.AddWithValue("@ChargedInvestigation", GetRadioButtonValue(rbChargedInvestigationYes));
+                command.Parameters.AddWithValue("@DIDDNoAbuse", GetCheckBoxValue(chkDIDDNoAbuse));
+                command.Parameters.AddWithValue("@DIDDHadAbuse", GetCheckBoxValue(chkDIDDHadAbuse));
+
+                // Authorization
+                command.Parameters.AddWithValue("@FinalAcknowledgment", GetCheckBoxValue(chkFinalAcknowledgment));
+
+                if (isUpdate)
+                {
+                    command.ExecuteNonQuery();
+                    return int.Parse(hfApplicationId.Value);
+                }
+                else
+                {
+                    object result = command.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        private void LoadApplicationData(int applicationId)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["TPAHRConnectionString"].ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // Load main application data
+                string sql = "SELECT * FROM [EmploymentApplications] WHERE [Id] = @ApplicationId";
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@ApplicationId", applicationId);
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@EducationLevel", education.Level);
-                        cmd.Parameters.AddWithValue("@SchoolName", education.School);
-                        cmd.Parameters.AddWithValue("@Major", GetTextOrNull(education.Major));
-                        cmd.Parameters.AddWithValue("@Skills", GetTextOrNull(education.Skills));
-                        cmd.Parameters.AddWithValue("@DiplomaReceived", education.Diploma);
-                        cmd.ExecuteNonQuery();
+                        if (reader.Read())
+                        {
+                            // Load personal information
+                            SetTextBoxValue(txtFirstName, reader["FirstName"]);
+                            SetTextBoxValue(txtMiddleName, reader["MiddleName"]);
+                            SetTextBoxValue(txtLastName, reader["LastName"]);
+                            SetTextBoxValue(txtHomeAddress, reader["HomeAddress"]);
+                            SetTextBoxValue(txtAptNumber, reader["AptNumber"]);
+                            SetTextBoxValue(txtCity, reader["City"]);
+                            SetTextBoxValue(txtState, reader["State"]);
+                            SetTextBoxValue(txtZipCode, reader["ZipCode"]);
+
+                            // Load position information with all checkbox states
+                            SetTextBoxValue(txtPosition1, reader["Position1"]);
+                            SetTextBoxValue(txtPosition2, reader["Position2"]);
+                            SetTextBoxValue(txtSalaryDesired, reader["SalaryDesired"]);
+
+                            // Load all checkbox values - these will work on all tabs
+                            SetCheckBoxValue(chkNashville, reader["NashvilleLocation"]);
+                            SetCheckBoxValue(chkFranklin, reader["FranklinLocation"]);
+                            SetCheckBoxValue(chkShelbyville, reader["ShelbyvilleLocation"]);
+                            SetCheckBoxValue(chkWaynesboro, reader["WaynesboroLocation"]);
+                            SetCheckBoxValue(chkOtherLocation, reader["OtherLocation"]);
+
+                            SetCheckBoxValue(chkFirstShift, reader["FirstShift"]);
+                            SetCheckBoxValue(chkSecondShift, reader["SecondShift"]);
+                            SetCheckBoxValue(chkThirdShift, reader["ThirdShift"]);
+                            SetCheckBoxValue(chkWeekendsOnly, reader["WeekendsOnly"]);
+
+                            SetCheckBoxValue(chkMonday, reader["MondayAvailable"]);
+                            SetCheckBoxValue(chkTuesday, reader["TuesdayAvailable"]);
+                            SetCheckBoxValue(chkWednesday, reader["WednesdayAvailable"]);
+                            SetCheckBoxValue(chkThursday, reader["ThursdayAvailable"]);
+                            SetCheckBoxValue(chkFriday, reader["FridayAvailable"]);
+                            SetCheckBoxValue(chkSaturday, reader["SaturdayAvailable"]);
+                            SetCheckBoxValue(chkSunday, reader["SundayAvailable"]);
+
+                            // Load background information
+                            SetRadioButtonValue(rbAppliedBeforeYes, rbAppliedBeforeNo, reader["PreviouslyAppliedToTPA"]);
+                            SetTextBoxValue(txtAppliedBeforeWhen, reader["PreviousApplicationDate"]);
+                            SetRadioButtonValue(rbWorkedBeforeYes, rbWorkedBeforeNo, reader["PreviouslyWorkedForTPA"]);
+                            SetTextBoxValue(txtWorkedBeforeWhen, reader["PreviousWorkDate"]);
+                            SetRadioButtonValue(rbFamilyEmployedYes, rbFamilyEmployedNo, reader["FamilyMembersEmployedByTPA"]);
+                            SetTextBoxValue(txtFamilyEmployedWho, reader["FamilyMemberDetails"]);
+
+                            // Load criminal/background data
+                            SetRadioButtonValue(rbConvicted7YearsYes, rbConvicted7YearsNo, reader["ConvictedCriminal7Years"]);
+                            SetRadioButtonValue(rbChargedInvestigationYes, rbChargedInvestigationNo, reader["ChargedInvestigation"]);
+                            SetCheckBoxValue(chkDIDDNoAbuse, reader["DIDDNoAbuse"]);
+                            SetCheckBoxValue(chkDIDDHadAbuse, reader["DIDDHadAbuse"]);
+
+                            // Load authorization
+                            SetCheckBoxValue(chkFinalAcknowledgment, reader["FinalAcknowledgment"]);
+                        }
                     }
                 }
             }
-        }
-
-        private void SaveLicensesData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing license records
-            string deleteSql = "DELETE FROM [EmploymentApplicationLicenses] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
-            }
-
-            // Insert license records
-            var licenses = new[]
-            {
-                new { Type = txtLicenseType1.Text, State = txtLicenseState1.Text, Number = txtLicenseNumber1.Text, Expiration = txtLicenseExpiration1.Text },
-                new { Type = txtLicenseType2.Text, State = txtLicenseState2.Text, Number = txtLicenseNumber2.Text, Expiration = txtLicenseExpiration2.Text },
-                new { Type = txtLicenseType3.Text, State = txtLicenseState3.Text, Number = txtLicenseNumber3.Text, Expiration = txtLicenseExpiration3.Text }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationLicenses] 
-                ([ApplicationId], [LicenseType], [State], [IDNumber], [ExpirationDate])
-                VALUES (@ApplicationId, @LicenseType, @State, @IDNumber, @ExpirationDate)";
-
-            foreach (var license in licenses)
-            {
-                if (!string.IsNullOrWhiteSpace(license.Type))
-                {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@LicenseType", license.Type);
-                        cmd.Parameters.AddWithValue("@State", GetTextOrNull(license.State));
-                        cmd.Parameters.AddWithValue("@IDNumber", GetTextOrNull(license.Number));
-                        cmd.Parameters.AddWithValue("@ExpirationDate", GetTextOrNull(license.Expiration));
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-        private void SaveEmploymentHistoryData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing employment history records
-            string deleteSql = "DELETE FROM [EmploymentApplicationHistory] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
-            }
-
-            // Insert employment history records
-            var employmentHistory = new[]
-            {
-                new {
-                    Employer = txtEmployer1.Text, FromDate = txtEmploymentFrom1.Text, ToDate = txtEmploymentTo1.Text,
-                    JobTitle = txtJobTitle1.Text, Supervisor = txtSupervisor1.Text, Address = txtEmployerAddress1.Text,
-                    CityStateZip = txtEmployerCityStateZip1.Text, Phone = txtEmployerPhone1.Text,
-                    StartingPay = txtStartingPay1.Text, FinalPay = txtFinalPay1.Text, WorkPerformed = txtWorkPerformed1.Text,
-                    StillEmployed = rbStillEmployed1Yes.Checked, ReasonLeaving = txtReasonLeaving1.Text,
-                    EligibleRehire = rbEligibleRehire1Yes.Checked
-                },
-                new {
-                    Employer = txtEmployer2.Text, FromDate = txtEmploymentFrom2.Text, ToDate = txtEmploymentTo2.Text,
-                    JobTitle = txtJobTitle2.Text, Supervisor = txtSupervisor2.Text, Address = txtEmployerAddress2.Text,
-                    CityStateZip = txtEmployerCityStateZip2.Text, Phone = txtEmployerPhone2.Text,
-                    StartingPay = txtStartingPay2.Text, FinalPay = txtFinalPay2.Text, WorkPerformed = txtWorkPerformed2.Text,
-                    StillEmployed = false, ReasonLeaving = txtReasonLeaving2.Text,
-                    EligibleRehire = rbEligibleRehire2Yes.Checked
-                },
-                new {
-                    Employer = txtEmployer3.Text, FromDate = txtEmploymentFrom3.Text, ToDate = txtEmploymentTo3.Text,
-                    JobTitle = txtJobTitle3.Text, Supervisor = txtSupervisor3.Text, Address = txtEmployerAddress3.Text,
-                    CityStateZip = txtEmployerCityStateZip3.Text, Phone = txtEmployerPhone3.Text,
-                    StartingPay = txtStartingPay3.Text, FinalPay = txtFinalPay3.Text, WorkPerformed = txtWorkPerformed3.Text,
-                    StillEmployed = false, ReasonLeaving = txtReasonLeaving3.Text,
-                    EligibleRehire = rbEligibleRehire3Yes.Checked
-                }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationHistory] 
-                ([ApplicationId], [Employer], [DatesEmployedFrom], [DatesEmployedTo], [JobTitle], [Supervisor],
-                 [Address], [CityStateZip], [TelephoneNumbers], [HourlyRateStarting], [HourlyRateFinal],
-                 [TitleWorkPerformed], [StillEmployed], [ReasonForLeaving], [EligibleForRehire])
-                VALUES (@ApplicationId, @Employer, @DatesEmployedFrom, @DatesEmployedTo, @JobTitle, @Supervisor,
-                        @Address, @CityStateZip, @TelephoneNumbers, @HourlyRateStarting, @HourlyRateFinal,
-                        @TitleWorkPerformed, @StillEmployed, @ReasonForLeaving, @EligibleForRehire)";
-
-            foreach (var employment in employmentHistory)
-            {
-                if (!string.IsNullOrWhiteSpace(employment.Employer))
-                {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@Employer", employment.Employer);
-                        cmd.Parameters.AddWithValue("@DatesEmployedFrom", GetDateOrNull(employment.FromDate));
-                        cmd.Parameters.AddWithValue("@DatesEmployedTo", GetDateOrNull(employment.ToDate));
-                        cmd.Parameters.AddWithValue("@JobTitle", GetTextOrNull(employment.JobTitle));
-                        cmd.Parameters.AddWithValue("@Supervisor", GetTextOrNull(employment.Supervisor));
-                        cmd.Parameters.AddWithValue("@Address", GetTextOrNull(employment.Address));
-                        cmd.Parameters.AddWithValue("@CityStateZip", GetTextOrNull(employment.CityStateZip));
-                        cmd.Parameters.AddWithValue("@TelephoneNumbers", GetTextOrNull(employment.Phone));
-                        cmd.Parameters.AddWithValue("@HourlyRateStarting", GetDecimalOrNull(employment.StartingPay));
-                        cmd.Parameters.AddWithValue("@HourlyRateFinal", GetDecimalOrNull(employment.FinalPay));
-                        cmd.Parameters.AddWithValue("@TitleWorkPerformed", GetTextOrNull(employment.WorkPerformed));
-                        cmd.Parameters.AddWithValue("@StillEmployed", employment.StillEmployed);
-                        cmd.Parameters.AddWithValue("@ReasonForLeaving", GetTextOrNull(employment.ReasonLeaving));
-                        cmd.Parameters.AddWithValue("@EligibleForRehire", employment.EligibleRehire);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-        private void SaveReferencesData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing reference records
-            string deleteSql = "DELETE FROM [EmploymentApplicationReferences] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
-            }
-
-            // Insert reference records
-            var references = new[]
-            {
-                new { Name = txtReference1Name.Text, Phone = txtReference1Phone.Text, Email = txtReference1Email.Text, Years = txtReference1Years.Text, Type = "Professional Reference #1" },
-                new { Name = txtReference2Name.Text, Phone = txtReference2Phone.Text, Email = txtReference2Email.Text, Years = txtReference2Years.Text, Type = "Professional Reference #2" },
-                new { Name = txtReference3Name.Text, Phone = txtReference3Phone.Text, Email = txtReference3Email.Text, Years = txtReference3Years.Text, Type = "Professional Reference #3" }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationReferences] 
-                ([ApplicationId], [ReferenceName], [ReferencePhone], [ReferenceEmail], [YearsKnown], [ReferenceType])
-                VALUES (@ApplicationId, @ReferenceName, @ReferencePhone, @ReferenceEmail, @YearsKnown, @ReferenceType)";
-
-            foreach (var reference in references)
-            {
-                if (!string.IsNullOrWhiteSpace(reference.Name))
-                {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@ReferenceName", reference.Name);
-                        cmd.Parameters.AddWithValue("@ReferencePhone", GetTextOrNull(reference.Phone));
-                        cmd.Parameters.AddWithValue("@ReferenceEmail", GetTextOrNull(reference.Email));
-                        cmd.Parameters.AddWithValue("@YearsKnown", GetTextOrNull(reference.Years));
-                        cmd.Parameters.AddWithValue("@ReferenceType", reference.Type);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-        private void SaveCriminalHistoryData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing criminal history records
-            string deleteSql = "DELETE FROM [EmploymentApplicationCriminalHistory] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
-            }
-
-            // Insert criminal history records
-            var criminalHistory = new[]
-            {
-                new { Date = txtCriminalDate1.Text, Charge = txtCriminalCharge1.Text, Status = txtCriminalStatus1.Text },
-                new { Date = txtCriminalDate2.Text, Charge = txtCriminalCharge2.Text, Status = txtCriminalStatus2.Text },
-                new { Date = txtCriminalDate3.Text, Charge = txtCriminalCharge3.Text, Status = txtCriminalStatus3.Text }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationCriminalHistory] 
-                ([ApplicationId], [IncidentDate], [Charge], [StatusOutcome])
-                VALUES (@ApplicationId, @IncidentDate, @Charge, @StatusOutcome)";
-
-            foreach (var incident in criminalHistory)
-            {
-                if (!string.IsNullOrWhiteSpace(incident.Charge))
-                {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@IncidentDate", GetDateOrNull(incident.Date));
-                        cmd.Parameters.AddWithValue("@Charge", incident.Charge);
-                        cmd.Parameters.AddWithValue("@StatusOutcome", GetTextOrNull(incident.Status));
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-        private void SaveFormerAddressesData(int applicationId, SqlConnection conn, SqlTransaction transaction)
-        {
-            // Delete existing former address records
-            string deleteSql = "DELETE FROM [EmploymentApplicationFormerAddresses] WHERE [ApplicationId] = @ApplicationId";
-            using (SqlCommand deleteCmd = new SqlCommand(deleteSql, conn, transaction))
-            {
-                deleteCmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                deleteCmd.ExecuteNonQuery();
-            }
-
-            // Insert former address records
-            var formerAddresses = new[]
-            {
-                new { Street = txtFormerStreet1.Text, City = txtFormerCity1.Text, State = txtFormerState1.Text, Years = txtFormerYears1.Text, Order = 1 },
-                new { Street = txtFormerStreet2.Text, City = txtFormerCity2.Text, State = txtFormerState2.Text, Years = txtFormerYears2.Text, Order = 2 },
-                new { Street = txtFormerStreet3.Text, City = txtFormerCity3.Text, State = txtFormerState3.Text, Years = txtFormerYears3.Text, Order = 3 }
-            };
-
-            string insertSql = @"
-                INSERT INTO [EmploymentApplicationFormerAddresses] 
-                ([ApplicationId], [Street], [City], [State], [YearsResided], [SequenceOrder])
-                VALUES (@ApplicationId, @Street, @City, @State, @YearsResided, @SequenceOrder)";
-
-            foreach (var address in formerAddresses)
-            {
-                if (!string.IsNullOrWhiteSpace(address.Street))
-                {
-                    using (SqlCommand cmd = new SqlCommand(insertSql, conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-                        cmd.Parameters.AddWithValue("@Street", address.Street);
-                        cmd.Parameters.AddWithValue("@City", GetTextOrNull(address.City));
-                        cmd.Parameters.AddWithValue("@State", GetTextOrNull(address.State));
-                        cmd.Parameters.AddWithValue("@YearsResided", GetIntOrNull(address.Years));
-                        cmd.Parameters.AddWithValue("@SequenceOrder", address.Order);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-        protected void cvFinalAcknowledgment_ServerValidate(object source, ServerValidateEventArgs args)
-        {
-            args.IsValid = chkFinalAcknowledgment.Checked;
         }
 
         #endregion
 
         #region Helper Methods
 
-        private string GenerateApplicationNumber()
+        private void SetTextBoxValue(TextBox textBox, object value)
         {
-            string applicationNumber = "";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            if (textBox != null && value != null && value != DBNull.Value)
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand("sp_GenerateApplicationNumber", conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    SqlParameter outputParam = new SqlParameter("@ApplicationNumber", SqlDbType.NVarChar, 50)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-                    cmd.Parameters.Add(outputParam);
-
-                    cmd.ExecuteNonQuery();
-                    applicationNumber = outputParam.Value.ToString();
-                }
-            }
-
-            return applicationNumber;
-        }
-
-        private string GetSalaryType()
-        {
-            if (rbHourly.Checked) return "Hourly";
-            if (rbYearly.Checked) return "Yearly";
-            return null;
-        }
-
-        private string GetEmploymentType()
-        {
-            if (rbFullTime.Checked) return "Full Time";
-            if (rbPartTime.Checked) return "Part Time";
-            if (rbTemporary.Checked) return "Temporary";
-            return null;
-        }
-
-        private object GetTextOrNull(string text)
-        {
-            return string.IsNullOrWhiteSpace(text) ? (object)DBNull.Value : text.Trim();
-        }
-
-        private object GetDateOrNull(string dateText)
-        {
-            if (string.IsNullOrWhiteSpace(dateText)) return DBNull.Value;
-            if (DateTime.TryParse(dateText, out DateTime result))
-                return result;
-            return DBNull.Value;
-        }
-
-        private object GetDecimalOrNull(string decimalText)
-        {
-            if (string.IsNullOrWhiteSpace(decimalText)) return DBNull.Value;
-            if (decimal.TryParse(decimalText, out decimal result))
-                return result;
-            return DBNull.Value;
-        }
-
-        private object GetIntOrNull(string intText)
-        {
-            if (string.IsNullOrWhiteSpace(intText)) return DBNull.Value;
-            if (int.TryParse(intText, out int result))
-                return result;
-            return DBNull.Value;
-        }
-
-        private string GetStringValue(SqlDataReader reader, string columnName)
-        {
-            try
-            {
-                var value = reader[columnName];
-                return value == DBNull.Value ? "" : value.ToString();
-            }
-            catch
-            {
-                return "";
+                textBox.Text = value.ToString();
             }
         }
 
-        private bool GetBoolValue(SqlDataReader reader, string columnName)
+        private void SetCheckBoxValue(CheckBox checkBox, object value)
         {
-            try
+            if (checkBox != null && value != null && value != DBNull.Value)
             {
-                var value = reader[columnName];
-                if (value == DBNull.Value) return false;
-                return Convert.ToBoolean(value);
-            }
-            catch
-            {
-                return false;
+                checkBox.Checked = Convert.ToBoolean(value);
             }
         }
 
-        private string GetDateValue(SqlDataReader reader, string columnName)
+        private void SetRadioButtonValue(RadioButton yesButton, RadioButton noButton, object value)
         {
-            try
+            if (yesButton != null && noButton != null && value != null && value != DBNull.Value)
             {
-                var value = reader[columnName];
-                if (value == DBNull.Value) return "";
-                if (DateTime.TryParse(value.ToString(), out DateTime result))
-                    return result.ToString("yyyy-MM-dd");
-                return "";
+                bool boolValue = Convert.ToBoolean(value);
+                yesButton.Checked = boolValue;
+                noButton.Checked = !boolValue;
             }
-            catch
-            {
-                return "";
-            }
+        }
+
+        private bool ValidateRequiredFields()
+        {
+            bool isValid = true;
+
+            // Validate required personal information
+            if (string.IsNullOrWhiteSpace(GetTextBoxValue(txtFirstName)))
+                isValid = false;
+            if (string.IsNullOrWhiteSpace(GetTextBoxValue(txtLastName)))
+                isValid = false;
+
+            // Validate final acknowledgment
+            if (!GetCheckBoxValue(chkFinalAcknowledgment))
+                isValid = false;
+
+            return isValid;
         }
 
         private void ShowSuccessMessage(string message)
         {
-            lblMessage.Text = message;
-            lblMessage.CssClass = "message-text success";
             pnlMessages.Visible = true;
             pnlMessages.CssClass = "message-panel success";
+            lblMessage.Text = message;
+            lblMessage.CssClass = "message-text";
         }
 
         private void ShowErrorMessage(string message)
         {
-            lblMessage.Text = message;
-            lblMessage.CssClass = "message-text error";
             pnlMessages.Visible = true;
             pnlMessages.CssClass = "message-panel error";
+            lblMessage.Text = message;
+            lblMessage.CssClass = "message-text";
         }
 
         #endregion
