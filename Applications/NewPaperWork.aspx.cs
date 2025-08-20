@@ -516,10 +516,7 @@ namespace Applications
                         // Save main application record
                         int applicationId = SaveMainApplicationRecord(connection, transaction, isSubmitted);
 
-                        // Save related data (when controls are identified)
-                        // SaveEducationData(connection, transaction, applicationId);
-                        // SaveEmploymentHistoryData(connection, transaction, applicationId);
-                        // SaveReferencesData(connection, transaction, applicationId);
+                      
 
                         transaction.Commit();
 
@@ -1147,11 +1144,10 @@ namespace Applications
         // REPLACE THIS METHOD:
         private void SaveEmploymentTabData()
         {
-            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            
             var employmentData = new Dictionary<string, object>
             {
-                // Employment history will be handled by the existing controls in the ASPX
-                // This method can be expanded when those controls are identified
+                
             };
             ViewState["EmploymentData"] = employmentData;
         }
@@ -1159,19 +1155,18 @@ namespace Applications
         // REPLACE THIS METHOD:
         private void SaveReferencesTabData()
         {
-            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+           
             var referencesData = new Dictionary<string, object>
             {
-                // References will be handled by the existing controls in the ASPX
-                // This method can be expanded when those controls are identified
+              
             };
             ViewState["ReferencesData"] = referencesData;
         }
 
-        // REPLACE THIS METHOD:
+   
         private void SaveAuthorizationTabData()
         {
-            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+           
             var authorizationData = new Dictionary<string, object>
             {
                 ["FinalAcknowledgment"] = GetCheckBoxValue(chkFinalAcknowledgment)
@@ -1179,8 +1174,7 @@ namespace Applications
             ViewState["AuthorizationData"] = authorizationData;
         }
 
-        // ADD THIS USING STATEMENT at the top of your file if not already present:
-        // using System.Collections.Generic;
+      
         #endregion
     }
 }
