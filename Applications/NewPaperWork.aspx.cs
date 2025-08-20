@@ -402,8 +402,8 @@ namespace Applications
 
         protected void btnSubmitApplication_Click(object sender, EventArgs e)
         {
-            try
-            {
+            //try
+            //{
                 if (!ValidateRequiredFields())
                 {
                     ShowErrorMessage("Please complete all required fields and acknowledge the final statement before submitting.");
@@ -414,13 +414,13 @@ namespace Applications
                 ShowSuccessMessage("Application submitted successfully! You will be redirected to your dashboard.");
 
                 // Redirect after a brief delay
-                ScriptManager.RegisterStartupScript(this, GetType(), "redirect",
-                    "setTimeout(function(){ window.location = 'EmployeeDashboard.aspx'; }, 2000);", true);
-            }
-            catch (Exception ex)
-            {
-                ShowErrorMessage("Error submitting application: " + ex.Message);
-            }
+            //    ScriptManager.RegisterStartupScript(this, GetType(), "redirect",
+            //        "setTimeout(function(){ window.location = 'EmployeeDashboard.aspx'; }, 2000);", true);
+            ////}
+            //catch (Exception ex)
+            //{
+            //    ShowErrorMessage("Error submitting application: " + ex.Message);
+            //}
         }
 
         #endregion
@@ -483,137 +483,7 @@ namespace Applications
             }
         }
 
-        private void SavePersonalTabData()
-        {
-            ViewState["PersonalData"] = new
-            {
-                FirstName = GetTextBoxValue(txtFirstName),
-                MiddleName = GetTextBoxValue(txtMiddleName),
-                LastName = GetTextBoxValue(txtLastName),
-                HomeAddress = GetTextBoxValue(txtHomeAddress),
-                AptNumber = GetTextBoxValue(txtAptNumber),
-                City = GetTextBoxValue(txtCity),
-                State = GetTextBoxValue(txtState),
-                ZipCode = GetTextBoxValue(txtZipCode),
-                SSN = GetTextBoxValue(txtSSN),
-                DriversLicense = GetTextBoxValue(txtDriversLicense),
-                DLState = GetTextBoxValue(txtDLState),
-                PhoneNumber = GetTextBoxValue(txtPhoneNumber),
-                CellNumber = GetTextBoxValue(txtCellNumber),
-                EmergencyContactName = GetTextBoxValue(txtEmergencyContactName),
-                EmergencyContactRelationship = GetTextBoxValue(txtEmergencyContactRelationship),
-                EmergencyContactAddress = GetTextBoxValue(txtEmergencyContactAddress)
-            };
-        }
-
-        private void SavePositionTabData()
-        {
-            ViewState["PositionData"] = new
-            {
-                Position1 = GetTextBoxValue(txtPosition1),
-                Position2 = GetTextBoxValue(txtPosition2),
-                SalaryDesired = GetTextBoxValue(txtSalaryDesired),
-                SalaryType = GetRadioButtonValue(rbHourly) ? "Hourly" : (GetRadioButtonValue(rbYearly) ? "Yearly" : ""),
-                AvailableStartDate = GetTextBoxValue(txtAvailableStartDate),
-                EmploymentSought = GetRadioButtonValue(rbFullTime) ? "Full Time" : (GetRadioButtonValue(rbPartTime) ? "Part Time" : (GetRadioButtonValue(rbTemporary) ? "Temporary" : "")),
-                // Always preserve checkbox values
-                NashvilleLocation = GetCheckBoxValue(chkNashville),
-                FranklinLocation = GetCheckBoxValue(chkFranklin),
-                ShelbyvilleLocation = GetCheckBoxValue(chkShelbyville),
-                WaynesboroLocation = GetCheckBoxValue(chkWaynesboro),
-                OtherLocation = GetCheckBoxValue(chkOtherLocation),
-                FirstShift = GetCheckBoxValue(chkFirstShift),
-                SecondShift = GetCheckBoxValue(chkSecondShift),
-                ThirdShift = GetCheckBoxValue(chkThirdShift),
-                WeekendsOnly = GetCheckBoxValue(chkWeekendsOnly),
-                MondayAvailable = GetCheckBoxValue(chkMonday),
-                TuesdayAvailable = GetCheckBoxValue(chkTuesday),
-                WednesdayAvailable = GetCheckBoxValue(chkWednesday),
-                ThursdayAvailable = GetCheckBoxValue(chkThursday),
-                FridayAvailable = GetCheckBoxValue(chkFriday),
-                SaturdayAvailable = GetCheckBoxValue(chkSaturday),
-                SundayAvailable = GetCheckBoxValue(chkSunday)
-            };
-        }
-
-        private void SaveBackgroundTabData()
-        {
-            ViewState["BackgroundData"] = new
-            {
-                PreviouslyAppliedToTPA = GetRadioButtonValue(rbAppliedBeforeYes),
-                PreviousApplicationDate = GetTextBoxValue(txtAppliedBeforeWhen),
-                PreviouslyWorkedForTPA = GetRadioButtonValue(rbWorkedBeforeYes),
-                PreviousWorkDate = GetTextBoxValue(txtWorkedBeforeWhen),
-                FamilyMembersEmployedByTPA = GetRadioButtonValue(rbFamilyEmployedYes),
-                FamilyMemberDetails = GetTextBoxValue(txtFamilyEmployedWho),
-                ConvictedCriminal7Years = GetRadioButtonValue(rbConvicted7YearsYes),
-                ChargedInvestigation = GetRadioButtonValue(rbChargedInvestigationYes),
-                DIDDNoAbuse = GetCheckBoxValue(chkDIDDNoAbuse),
-                DIDDHadAbuse = GetCheckBoxValue(chkDIDDHadAbuse)
-            };
-        }
-
-        private void SaveEducationTabData()
-        {
-            ViewState["EducationData"] = new
-            {
-                ElementarySchool = GetTextBoxValue(txtElementarySchool),
-                HighSchool = GetTextBoxValue(txtHighSchool),
-                UndergraduateSchool = GetTextBoxValue(txtUndergraduateSchool),
-                GraduateSchool = GetTextBoxValue(txtGraduateSchool),
-                ElementaryDiploma = GetRadioButtonValue(rbElemDiplomaYes),
-                HighSchoolDiploma = GetRadioButtonValue(rbHSDiplomaYes),
-                UndergraduateDegree = GetRadioButtonValue(rbUGDegreeYes),
-                GraduateDegree = GetRadioButtonValue(rbGradDegreeYes),
-                // Year checkboxes
-                Elem1 = GetCheckBoxValue(chkElem1),
-                Elem2 = GetCheckBoxValue(chkElem2),
-                Elem3 = GetCheckBoxValue(chkElem3),
-                Elem4 = GetCheckBoxValue(chkElem4),
-                Elem5 = GetCheckBoxValue(chkElem5),
-                HS9 = GetCheckBoxValue(chkHS9),
-                HS10 = GetCheckBoxValue(chkHS10),
-                HS11 = GetCheckBoxValue(chkHS11),
-                HS12 = GetCheckBoxValue(chkHS12),
-                UG1 = GetCheckBoxValue(chkUG1),
-                UG2 = GetCheckBoxValue(chkUG2),
-                UG3 = GetCheckBoxValue(chkUG3),
-                UG4 = GetCheckBoxValue(chkUG4),
-                Grad1 = GetCheckBoxValue(chkGrad1),
-                Grad2 = GetCheckBoxValue(chkGrad2),
-                Grad3 = GetCheckBoxValue(chkGrad3),
-                Grad4 = GetCheckBoxValue(chkGrad4),
-                Grad5 = GetCheckBoxValue(chkGrad5)
-            };
-        }
-
-        private void SaveEmploymentTabData()
-        {
-            ViewState["EmploymentData"] = new
-            {
-                // Employment history will be handled by the existing controls in the ASPX
-                // This method can be expanded when those controls are identified
-            };
-        }
-
-        private void SaveReferencesTabData()
-        {
-            ViewState["ReferencesData"] = new
-            {
-                // References will be handled by the existing controls in the ASPX
-                // This method can be expanded when those controls are identified
-            };
-        }
-
-        private void SaveAuthorizationTabData()
-        {
-            ViewState["AuthorizationData"] = new
-            {
-                FinalAcknowledgment = GetCheckBoxValue(chkFinalAcknowledgment)
-            };
-        }
-
-        // Helper methods for safe value extraction
+       
         private string GetTextBoxValue(TextBox textBox)
         {
             return textBox?.Text ?? "";
@@ -631,7 +501,7 @@ namespace Applications
 
         private void SaveApplicationData(bool isSubmitted)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["TPAHRConnectionString"].ConnectionString;
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -986,12 +856,7 @@ namespace Applications
             lblMessage.CssClass = "message-text";
         }
 
-        // =====================================================================
-        // ONLY THE SECTIONS TO CHANGE IN NewPaperWork.aspx.cs
-        // Replace these specific methods with the corrected versions
-        // =====================================================================
-
-        // 1. REPLACE THE LoadEducationInformation METHOD (around line 496-520)
+       
         private void LoadEducationInformation(SqlDataReader reader)
         {
             // School names
@@ -1152,13 +1017,170 @@ namespace Applications
             }
         }
 
-        // 3. ADD THIS MISSING METHOD (add it in the Validation Events region around line 248)
+        
         protected void cvFinalAcknowledgment_ServerValidate(object source, ServerValidateEventArgs args)
         {
             // Validate that the final acknowledgment checkbox is checked
             args.IsValid = chkFinalAcknowledgment != null && chkFinalAcknowledgment.Checked;
         }
+        
+        private void SavePersonalTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var personalData = new Dictionary<string, object>
+            {
+                ["FirstName"] = GetTextBoxValue(txtFirstName),
+                ["MiddleName"] = GetTextBoxValue(txtMiddleName),
+                ["LastName"] = GetTextBoxValue(txtLastName),
+                ["HomeAddress"] = GetTextBoxValue(txtHomeAddress),
+                ["AptNumber"] = GetTextBoxValue(txtAptNumber),
+                ["City"] = GetTextBoxValue(txtCity),
+                ["State"] = GetTextBoxValue(txtState),
+                ["ZipCode"] = GetTextBoxValue(txtZipCode),
+                ["SSN"] = GetTextBoxValue(txtSSN),
+                ["DriversLicense"] = GetTextBoxValue(txtDriversLicense),
+                ["DLState"] = GetTextBoxValue(txtDLState),
+                ["PhoneNumber"] = GetTextBoxValue(txtPhoneNumber),
+                ["CellNumber"] = GetTextBoxValue(txtCellNumber),
+                ["EmergencyContactName"] = GetTextBoxValue(txtEmergencyContactName),
+                ["EmergencyContactRelationship"] = GetTextBoxValue(txtEmergencyContactRelationship),
+                ["EmergencyContactAddress"] = GetTextBoxValue(txtEmergencyContactAddress)
+            };
+            ViewState["PersonalData"] = personalData;
+        }
 
+        // REPLACE THIS METHOD:
+        private void SavePositionTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var positionData = new Dictionary<string, object>
+            {
+                ["Position1"] = GetTextBoxValue(txtPosition1),
+                ["Position2"] = GetTextBoxValue(txtPosition2),
+                ["SalaryDesired"] = GetTextBoxValue(txtSalaryDesired),
+                ["SalaryType"] = GetRadioButtonValue(rbHourly) ? "Hourly" : (GetRadioButtonValue(rbYearly) ? "Yearly" : ""),
+                ["AvailableStartDate"] = GetTextBoxValue(txtAvailableStartDate),
+                ["EmploymentSought"] = GetRadioButtonValue(rbFullTime) ? "Full Time" : (GetRadioButtonValue(rbPartTime) ? "Part Time" : (GetRadioButtonValue(rbTemporary) ? "Temporary" : "")),
+                ["NashvilleLocation"] = GetCheckBoxValue(chkNashville),
+                ["FranklinLocation"] = GetCheckBoxValue(chkFranklin),
+                ["ShelbyvilleLocation"] = GetCheckBoxValue(chkShelbyville),
+                ["WaynesboroLocation"] = GetCheckBoxValue(chkWaynesboro),
+                ["OtherLocation"] = GetCheckBoxValue(chkOtherLocation),
+                ["FirstShift"] = GetCheckBoxValue(chkFirstShift),
+                ["SecondShift"] = GetCheckBoxValue(chkSecondShift),
+                ["ThirdShift"] = GetCheckBoxValue(chkThirdShift),
+                ["WeekendShift"] = GetCheckBoxValue(chkWeekendsOnly),
+                ["Monday"] = GetCheckBoxValue(chkMonday),
+                ["Tuesday"] = GetCheckBoxValue(chkTuesday),
+                ["Wednesday"] = GetCheckBoxValue(chkWednesday),
+                ["Thursday"] = GetCheckBoxValue(chkThursday),
+                ["Friday"] = GetCheckBoxValue(chkFriday),
+                ["Saturday"] = GetCheckBoxValue(chkSaturday),
+                ["Sunday"] = GetCheckBoxValue(chkSunday)
+            };
+            ViewState["PositionData"] = positionData;
+        }
+
+        // REPLACE THIS METHOD:
+        private void SaveBackgroundTabData()
+        {
+            // CORRECTED: Using the actual radio button control names from the ASPX file
+            var backgroundData = new Dictionary<string, object>
+            {
+                ["Age18OrOlder"] = GetRadioButtonValue(rbOver18Yes),
+                ["LegallyEligible"] = GetRadioButtonValue(rbLegallyEntitledYes),
+                ["PreviouslyAppliedToTPA"] = GetRadioButtonValue(rbAppliedBeforeYes),
+                ["PreviouslyWorkedForTPA"] = GetRadioButtonValue(rbWorkedBeforeYes),
+                ["FamilyMembersEmployedByTPA"] = GetRadioButtonValue(rbFamilyEmployedYes),
+                ["FamilyMemberDetails"] = GetTextBoxValue(txtFamilyEmployedWho),
+                ["ConvictedCriminal7Years"] = GetRadioButtonValue(rbConvictedYes),
+                ["ChargedInvestigation"] = GetRadioButtonValue(rbAbuseRegistryYes),
+                ["USCitizen"] = GetRadioButtonValue(rbUSCitizenYes),
+                ["ArmedForces"] = GetRadioButtonValue(rbArmedForcesYes),
+                ["FoundGuiltyAbuse"] = GetRadioButtonValue(rbFoundGuiltyYes),
+                ["LicenseRevoked"] = GetRadioButtonValue(rbLicenseRevokedYes),
+                ["AlienNumber"] = GetTextBoxValue(txtAlienNumber),
+                ["DIDDNoAbuse"] = GetCheckBoxValue(chkDIDDNoAbuse),
+                ["DIDDHadAbuse"] = GetCheckBoxValue(chkDIDDHadAbuse)
+            };
+            ViewState["BackgroundData"] = backgroundData;
+        }
+
+
+        // REPLACE THIS METHOD:
+        private void SaveEducationTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var educationData = new Dictionary<string, object>
+            {
+                ["ElementarySchool"] = GetTextBoxValue(txtElementarySchool),
+                ["HighSchool"] = GetTextBoxValue(txtHighSchool),
+                ["UndergraduateSchool"] = GetTextBoxValue(txtUndergraduateSchool),
+                ["GraduateSchool"] = GetTextBoxValue(txtGraduateSchool),
+                ["ElementaryDiploma"] = GetRadioButtonValue(rbElemDiplomaYes),
+                ["HighSchoolDiploma"] = GetRadioButtonValue(rbHSDiplomaYes),
+                ["UndergraduateDegree"] = GetRadioButtonValue(rbUGDegreeYes),
+                ["GraduateDegree"] = GetRadioButtonValue(rbGradDegreeYes),
+                // Year checkboxes
+                ["Elem1"] = GetCheckBoxValue(chkElem1),
+                ["Elem2"] = GetCheckBoxValue(chkElem2),
+                ["Elem3"] = GetCheckBoxValue(chkElem3),
+                ["Elem4"] = GetCheckBoxValue(chkElem4),
+                ["Elem5"] = GetCheckBoxValue(chkElem5),
+                ["HS9"] = GetCheckBoxValue(chkHS9),
+                ["HS10"] = GetCheckBoxValue(chkHS10),
+                ["HS11"] = GetCheckBoxValue(chkHS11),
+                ["HS12"] = GetCheckBoxValue(chkHS12),
+                ["UG1"] = GetCheckBoxValue(chkUG1),
+                ["UG2"] = GetCheckBoxValue(chkUG2),
+                ["UG3"] = GetCheckBoxValue(chkUG3),
+                ["UG4"] = GetCheckBoxValue(chkUG4),
+                ["Grad1"] = GetCheckBoxValue(chkGrad1),
+                ["Grad2"] = GetCheckBoxValue(chkGrad2),
+                ["Grad3"] = GetCheckBoxValue(chkGrad3),
+                ["Grad4"] = GetCheckBoxValue(chkGrad4),
+                ["Grad5"] = GetCheckBoxValue(chkGrad5)
+            };
+            ViewState["EducationData"] = educationData;
+        }
+
+        // REPLACE THIS METHOD:
+        private void SaveEmploymentTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var employmentData = new Dictionary<string, object>
+            {
+                // Employment history will be handled by the existing controls in the ASPX
+                // This method can be expanded when those controls are identified
+            };
+            ViewState["EmploymentData"] = employmentData;
+        }
+
+        // REPLACE THIS METHOD:
+        private void SaveReferencesTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var referencesData = new Dictionary<string, object>
+            {
+                // References will be handled by the existing controls in the ASPX
+                // This method can be expanded when those controls are identified
+            };
+            ViewState["ReferencesData"] = referencesData;
+        }
+
+        // REPLACE THIS METHOD:
+        private void SaveAuthorizationTabData()
+        {
+            // CHANGED: Using Dictionary instead of anonymous type to fix serialization
+            var authorizationData = new Dictionary<string, object>
+            {
+                ["FinalAcknowledgment"] = GetCheckBoxValue(chkFinalAcknowledgment)
+            };
+            ViewState["AuthorizationData"] = authorizationData;
+        }
+
+        // ADD THIS USING STATEMENT at the top of your file if not already present:
+        // using System.Collections.Generic;
         #endregion
     }
 }
