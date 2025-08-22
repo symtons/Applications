@@ -98,62 +98,7 @@ namespace Applications
             ShowTab("authorization");
         }
 
-        private void ShowTab(string tabName)
-        {
-            // Hide all tabs
-            pnlPersonalTab.Visible = false;
-            pnlPositionTab.Visible = false;
-            pnlBackgroundTab.Visible = false;
-            pnlEducationTab.Visible = false;
-            pnlEmploymentTab.Visible = false;
-            pnlReferencesTab.Visible = false;
-            pnlAuthorizationTab.Visible = false;
-
-            // Remove active class from all buttons
-            btnTabPersonal.CssClass = "tab-button";
-            btnTabPosition.CssClass = "tab-button";
-            btnTabBackground.CssClass = "tab-button";
-            btnTabEducation.CssClass = "tab-button";
-            btnTabEmployment.CssClass = "tab-button";
-            btnTabReferences.CssClass = "tab-button";
-            btnTabAuthorization.CssClass = "tab-button";
-
-            // Show selected tab and set button active
-            switch (tabName.ToLower())
-            {
-                case "personal":
-                    pnlPersonalTab.Visible = true;
-                    btnTabPersonal.CssClass = "tab-button active";
-                    break;
-                case "position":
-                    pnlPositionTab.Visible = true;
-                    btnTabPosition.CssClass = "tab-button active";
-                    break;
-                case "background":
-                    pnlBackgroundTab.Visible = true;
-                    btnTabBackground.CssClass = "tab-button active";
-                    break;
-                case "education":
-                    pnlEducationTab.Visible = true;
-                    btnTabEducation.CssClass = "tab-button active";
-                    break;
-                case "employment":
-                    pnlEmploymentTab.Visible = true;
-                    btnTabEmployment.CssClass = "tab-button active";
-                    break;
-                case "references":
-                    pnlReferencesTab.Visible = true;
-                    btnTabReferences.CssClass = "tab-button active";
-                    break;
-                case "authorization":
-                    pnlAuthorizationTab.Visible = true;
-                    btnTabAuthorization.CssClass = "tab-button active";
-                    break;
-            }
-
-            hfCurrentTab.Value = tabName;
-            upMain.Update();
-        }
+      
 
         #endregion
 
@@ -229,21 +174,21 @@ namespace Applications
 
         protected void btnSaveDraft_Click(object sender, EventArgs e)
         {
-            try
-            {
+            //try
+            //{
                 SaveApplicationData(false);
                 ShowMessage("Draft saved successfully!", "success");
-            }
-            catch (Exception ex)
-            {
-                ShowMessage("Error saving draft: " + ex.Message, "error");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ShowMessage("Error saving draft: " + ex.Message, "error");
+            //}
         }
 
         protected void btnSubmitApplication_Click(object sender, EventArgs e)
         {
-            try
-            {
+            //try
+            //{
                 if (ValidateApplication())
                 {
                     SaveApplicationData(true);
@@ -252,23 +197,23 @@ namespace Applications
                     // Redirect or disable form after submission
                     DisableFormAfterSubmission();
                 }
-            }
-            catch (Exception ex)
-            {
-                ShowMessage("Error submitting application: " + ex.Message, "error");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ShowMessage("Error submitting application: " + ex.Message, "error");
+            //}
         }
 
         private void SaveCurrentTabData()
         {
-            try
-            {
+            //try
+            //{
                 SaveApplicationData(false);
-            }
-            catch (Exception)
-            {
-                // Silent save - don't show errors for auto-save
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    // Silent save - don't show errors for auto-save
+            //}
         }
 
         private void SaveApplicationData(bool isSubmitted)
@@ -278,8 +223,8 @@ namespace Applications
                 connection.Open();
                 using (SqlTransaction transaction = connection.BeginTransaction())
                 {
-                    try
-                    {
+                    //try
+                    //{
                         int applicationId;
 
                         if (!string.IsNullOrEmpty(hfApplicationId.Value))
@@ -296,12 +241,12 @@ namespace Applications
                         }
 
                         transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
+                    //}
+                    //catch
+                    //{
+                    //    transaction.Rollback();
+                    //    throw;
+                    //}
                 }
             }
         }
@@ -498,9 +443,11 @@ namespace Applications
             command.Parameters.AddWithValue("@Status", status);
 
             // Personal Information
-            command.Parameters.AddWithValue("@ApplicationDate", GetTextBoxValue(txtApplicationDate));
+            command.Parameters.AddWithValue("@ApplicationDate", now);
+          
             command.Parameters.AddWithValue("@FirstName", GetTextBoxValue(txtFirstName));
             command.Parameters.AddWithValue("@MiddleName", GetTextBoxValue(txtMiddleName));
+
             command.Parameters.AddWithValue("@LastName", GetTextBoxValue(txtLastName));
             command.Parameters.AddWithValue("@HomeAddress", GetTextBoxValue(txtHomeAddress));
             command.Parameters.AddWithValue("@AptNumber", GetTextBoxValue(txtAptNumber));
@@ -700,7 +647,7 @@ namespace Applications
             command.Parameters.AddWithValue("@ReferenceAuthName", GetTextBoxValue(txtReferenceAuthName));
             command.Parameters.AddWithValue("@SSNLast4", GetTextBoxValue(txtSSNLast4));
             command.Parameters.AddWithValue("@ApplicantSignature", GetTextBoxValue(txtApplicantSignature));
-            command.Parameters.AddWithValue("@SignatureDate", GetTextBoxValue(txtSignatureDate));
+            command.Parameters.AddWithValue("@SignatureDate", now);
             command.Parameters.AddWithValue("@FinalAcknowledgment", GetCheckBoxValue(chkFinalAcknowledgment));
         }
 
@@ -1091,7 +1038,65 @@ namespace Applications
                 if (noButton != null) noButton.Checked = !boolValue;
             }
         }
+        private void ShowTab(string tabName)
+        {
+            // Reset all tab buttons to inactive state
+            btnTabPersonal.CssClass = "tab-button";
+            btnTabPosition.CssClass = "tab-button";
+            btnTabBackground.CssClass = "tab-button";
+            btnTabEducation.CssClass = "tab-button";
+            btnTabEmployment.CssClass = "tab-button";
+            btnTabReferences.CssClass = "tab-button";
+            btnTabAuthorization.CssClass = "tab-button";
 
+            // Hide all tab content using CSS classes (not Visible property)
+            pnlPersonalTab.CssClass = "tab-content";
+            pnlPositionTab.CssClass = "tab-content";
+            pnlBackgroundTab.CssClass = "tab-content";
+            pnlEducationTab.CssClass = "tab-content";
+            pnlEmploymentTab.CssClass = "tab-content";
+            pnlReferencesTab.CssClass = "tab-content";
+            pnlAuthorizationTab.CssClass = "tab-content";
+
+            // Show selected tab and set button active based on tab name
+            switch (tabName.ToLower())
+            {
+                case "personal":
+                    btnTabPersonal.CssClass = "tab-button active";
+                    pnlPersonalTab.CssClass = "tab-content active";
+                    break;
+                case "position":
+                    btnTabPosition.CssClass = "tab-button active";
+                    pnlPositionTab.CssClass = "tab-content active";
+                    break;
+                case "background":
+                    btnTabBackground.CssClass = "tab-button active";
+                    pnlBackgroundTab.CssClass = "tab-content active";
+                    break;
+                case "education":
+                    btnTabEducation.CssClass = "tab-button active";
+                    pnlEducationTab.CssClass = "tab-content active";
+                    break;
+                case "employment":
+                    btnTabEmployment.CssClass = "tab-button active";
+                    pnlEmploymentTab.CssClass = "tab-content active";
+                    break;
+                case "references":
+                    btnTabReferences.CssClass = "tab-button active";
+                    pnlReferencesTab.CssClass = "tab-content active";
+                    break;
+                case "authorization":
+                    btnTabAuthorization.CssClass = "tab-button active";
+                    pnlAuthorizationTab.CssClass = "tab-content active";
+                    break;
+            }
+
+            // Store current tab in hidden field for navigation purposes
+            hfCurrentTab.Value = tabName;
+
+            // Update the UpdatePanel to refresh the UI
+            upMain.Update();
+        }
         #endregion
     }
 }

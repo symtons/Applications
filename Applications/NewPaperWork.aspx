@@ -2391,7 +2391,7 @@
                     <div class="nav-buttons">
                         <asp:Button ID="btnPrevious" runat="server" Text="Previous" CssClass="btn btn-secondary" OnClick="btnPrevious_Click" />
                         <asp:Button ID="btnNext" runat="server" Text="Next" CssClass="btn btn-primary" OnClick="btnNext_Click" />
-                        <asp:Button ID="btnSubmitApplication" runat="server" Text="Submit Application" CssClass="btn btn-success" OnClick="btnSubmitApplication_Click" ValidationGroup="SubmitApplication" Visible="false" />
+                        <asp:Button ID="btnSubmitApplication" runat="server" Text="Submit Application" CssClass="btn btn-success" OnClick="btnSubmitApplication_Click" ValidationGroup="SubmitApplication" Visible="true" />
                     </div>
                 </div>
 
