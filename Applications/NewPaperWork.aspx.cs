@@ -185,17 +185,39 @@ namespace Applications
             //}
         }
 
+        //protected void btnSubmitApplication_Click(object sender, EventArgs e)
+        //{
+        //    //try
+        //    //{
+        //        if (ValidateApplication())
+        //        {
+        //            SaveApplicationData(true);
+        //            ShowMessage("Application submitted successfully!", "success");
+
+        //            // Redirect or disable form after submission
+        //            DisableFormAfterSubmission();
+        //        }
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    ShowMessage("Error submitting application: " + ex.Message, "error");
+        //    //}
+        //}
+
+
         protected void btnSubmitApplication_Click(object sender, EventArgs e)
         {
             //try
             //{
                 if (ValidateApplication())
                 {
-                    SaveApplicationData(true);
+                    int applicationId = SaveApplicationData(true);
+
                     ShowMessage("Application submitted successfully!", "success");
 
-                    // Redirect or disable form after submission
-                    DisableFormAfterSubmission();
+                    // Redirect to success page after successful save
+                    Response.Redirect($"ApplicationSuccess.aspx?id={applicationId}", false);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
             //}
             //catch (Exception ex)
@@ -216,37 +238,36 @@ namespace Applications
             //}
         }
 
-        private void SaveApplicationData(bool isSubmitted)
+        private int SaveApplicationData(bool isSubmitted)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 using (SqlTransaction transaction = connection.BeginTransaction())
                 {
-                    //try
-                    //{
+                    try
+                    {
                         int applicationId;
 
                         if (!string.IsNullOrEmpty(hfApplicationId.Value))
                         {
-                            // Update existing application
                             applicationId = Convert.ToInt32(hfApplicationId.Value);
                             UpdateApplication(connection, transaction, applicationId, isSubmitted);
                         }
                         else
                         {
-                            // Insert new application
                             applicationId = InsertApplication(connection, transaction, isSubmitted);
                             hfApplicationId.Value = applicationId.ToString();
                         }
 
                         transaction.Commit();
-                    //}
-                    //catch
-                    //{
-                    //    transaction.Rollback();
-                    //    throw;
-                    //}
+                        return applicationId;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
             }
         }
@@ -435,16 +456,17 @@ namespace Applications
             // Application metadata
             if (!string.IsNullOrEmpty(applicationNumber))
                 command.Parameters.AddWithValue("@ApplicationNumber", applicationNumber);
+           
 
             command.Parameters.AddWithValue("@IsSubmitted", isSubmitted);
             command.Parameters.AddWithValue("@SubmissionDate", isSubmitted ? (object)now : DBNull.Value);
-            command.Parameters.AddWithValue("@CreatedDate", now);
-            command.Parameters.AddWithValue("@LastModified", now);
+            command.Parameters.AddWithValue("@CreatedDate", GetDateTimeOrNow(txtApplicationDate.Text));
+            command.Parameters.AddWithValue("@LastModified", GetDateTimeOrNow(txtApplicationDate.Text));
             command.Parameters.AddWithValue("@Status", status);
 
             // Personal Information
-            command.Parameters.AddWithValue("@ApplicationDate", now);
-          
+            command.Parameters.AddWithValue("@ApplicationDate", GetDateTimeOrNow(txtApplicationDate.Text));
+
             command.Parameters.AddWithValue("@FirstName", GetTextBoxValue(txtFirstName));
             command.Parameters.AddWithValue("@MiddleName", GetTextBoxValue(txtMiddleName));
 
@@ -470,8 +492,8 @@ namespace Applications
             command.Parameters.AddWithValue("@Position2", GetTextBoxValue(txtPosition2));
             command.Parameters.AddWithValue("@SalaryDesired", GetTextBoxValue(txtSalaryDesired));
             command.Parameters.AddWithValue("@AvailableStartDate", GetTextBoxValue(txtAvailableStartDate));
-            command.Parameters.AddWithValue("@SalaryType", GetRadioButtonGroupValue("SalaryType"));
-            command.Parameters.AddWithValue("@EmploymentType", GetRadioButtonGroupValue("EmploymentType"));
+            command.Parameters.AddWithValue("@SalaryType", GetSalaryType());
+            command.Parameters.AddWithValue("@EmploymentType", GetEmploymentType());
 
             // Location Preferences
             command.Parameters.AddWithValue("@NashvilleLocation", GetCheckBoxValue(chkNashville));
@@ -647,13 +669,14 @@ namespace Applications
             command.Parameters.AddWithValue("@ReferenceAuthName", GetTextBoxValue(txtReferenceAuthName));
             command.Parameters.AddWithValue("@SSNLast4", GetTextBoxValue(txtSSNLast4));
             command.Parameters.AddWithValue("@ApplicantSignature", GetTextBoxValue(txtApplicantSignature));
-            command.Parameters.AddWithValue("@SignatureDate", now);
+            
+            command.Parameters.AddWithValue("@SignatureDate", GetDateTimeOrNow(txtSignatureDate.Text));
             command.Parameters.AddWithValue("@FinalAcknowledgment", GetCheckBoxValue(chkFinalAcknowledgment));
         }
 
         private void LoadApplicationData(int applicationId)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["TPAHRConnectionString"].ConnectionString;
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -988,26 +1011,29 @@ namespace Applications
         }
 
         // Control value helper methods
-        private string GetTextBoxValue(TextBox textBox)
-        {
-            return string.IsNullOrWhiteSpace(textBox?.Text) ? null : textBox.Text.Trim();
-        }
-
-        private bool GetCheckBoxValue(CheckBox checkBox)
-        {
-            return checkBox?.Checked ?? false;
-        }
+  
+      
 
         private bool GetRadioButtonValue(RadioButton radioButton)
         {
             return radioButton?.Checked ?? false;
         }
 
-        private string GetRadioButtonGroupValue(string groupName)
+      
+
+        private object GetRadioButtonBooleanValue(RadioButton yesButton, RadioButton noButton)
         {
-            // This method would need to be implemented based on your specific radio button groups
-            // For now, returning null - you'll need to add specific logic for each group
-            return null;
+            if (yesButton == null && noButton == null)
+                return DBNull.Value;
+
+            if (yesButton?.Checked == true)
+                return true;
+
+            if (noButton?.Checked == true)
+                return false;
+
+            // Neither button is checked - return null
+            return DBNull.Value;
         }
 
         private void SetTextBoxValue(TextBox textBox, object value)
@@ -1096,6 +1122,44 @@ namespace Applications
 
             // Update the UpdatePanel to refresh the UI
             upMain.Update();
+        }
+
+        private DateTime GetDateTimeOrNow(string dateText)
+        {
+            if (DateTime.TryParse(dateText, out DateTime result))
+            {
+                return result;
+            }
+            return DateTime.Now;
+        }
+        private object GetTextBoxValue(TextBox textBox)
+        {
+            if (textBox == null || string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                return DBNull.Value;  // Return DBNull.Value instead of empty string
+            }
+            return textBox.Text.Trim();
+        }
+
+        // 2. UPDATE GetCheckBoxValue method (this one is probably fine already)
+        private bool GetCheckBoxValue(CheckBox checkBox)
+        {
+            return checkBox?.Checked ?? false;
+        }
+
+        private object GetSalaryType()
+        {
+            if (rbHourly?.Checked == true) return "Hourly";
+            if (rbYearly?.Checked == true) return "Yearly";
+            return DBNull.Value; // Return null if neither is selected
+        }
+
+        private object GetEmploymentType()
+        {
+            if (rbFullTime?.Checked == true) return "Full Time";
+            if (rbPartTime?.Checked == true) return "Part Time";
+            if (rbTemporary?.Checked == true) return "Temporary";
+            return DBNull.Value; // Return null if neither is selected
         }
         #endregion
     }
