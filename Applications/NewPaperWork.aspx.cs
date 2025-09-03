@@ -185,46 +185,10 @@ namespace Applications
             //}
         }
 
-        //protected void btnSubmitApplication_Click(object sender, EventArgs e)
-        //{
-        //    //try
-        //    //{
-        //        if (ValidateApplication())
-        //        {
-        //            SaveApplicationData(true);
-        //            ShowMessage("Application submitted successfully!", "success");
-
-        //            // Redirect or disable form after submission
-        //            DisableFormAfterSubmission();
-        //        }
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    ShowMessage("Error submitting application: " + ex.Message, "error");
-        //    //}
-        //}
+        
 
 
-        protected void btnSubmitApplication_Click(object sender, EventArgs e)
-        {
-            //try
-            //{
-                if (ValidateApplication())
-                {
-                    int applicationId = SaveApplicationData(true);
-
-                    ShowMessage("Application submitted successfully!", "success");
-
-                    // Redirect to success page after successful save
-                    Response.Redirect($"ApplicationSuccess.aspx?id={applicationId}", false);
-                    Context.ApplicationInstance.CompleteRequest();
-                }
-            //}
-            //catch (Exception ex)
-            //{
-            //    ShowMessage("Error submitting application: " + ex.Message, "error");
-            //}
-        }
+       
 
         private void SaveCurrentTabData()
         {
@@ -271,6 +235,55 @@ namespace Applications
                 }
             }
         }
+
+        protected void btnSubmitApplication_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Validate required fields before submission
+                if (string.IsNullOrEmpty(txtFirstName.Text.Trim()))
+                {
+                    ShowMessage("First Name is required.", "error");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(txtLastName.Text.Trim()))
+                {
+                    ShowMessage("Last Name is required.", "error");
+                    return;
+                }
+
+               
+
+                // Add any other validation you need here...
+
+                // Save application data using your existing method
+                int applicationId = SaveApplicationData(true);
+
+                if (applicationId > 0)
+                {
+                    // Show success message briefly
+                    ShowMessage("Application submitted successfully! Redirecting to document upload...", "success");
+
+                    // Redirect to document upload page instead of success page
+                    string script = @"
+                setTimeout(function() {
+                    window.location.href = 'ApplicationDocuments.aspx?id=" + applicationId + @"';
+                }, 2000);";
+
+                    ScriptManager.RegisterStartupScript(this, GetType(), "RedirectToDocuments", script, true);
+                }
+                else
+                {
+                    ShowMessage("Error saving application. Please try again.", "error");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error submitting application: " + ex.Message, "error");
+            }
+        }
+
 
         private int InsertApplication(SqlConnection connection, SqlTransaction transaction, bool isSubmitted)
         {

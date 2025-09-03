@@ -73,6 +73,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ApplicationDocuments.aspx" />
     <Content Include="ApplicationSuccess.aspx" />
     <Content Include="Content\css\employee-management.css" />
     <Content Include="Content\css\tpa-auth.css" />
@@ -87,6 +88,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationDocuments.aspx.cs">
+      <DependentUpon>ApplicationDocuments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ApplicationDocuments.aspx.designer.cs">
+      <DependentUpon>ApplicationDocuments.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ApplicationSuccess.aspx.cs">
       <DependentUpon>ApplicationSuccess.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -122,6 +130,9 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="uploads\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
